@@ -54,7 +54,7 @@ import textwrap
 import threading
 import time
 
-__version__ = "0.5.2"
+__version__ = "0.5.3"
 GITHUB_REPO = "rotorrest/claude-monitor"
 
 SESSIONS_DIR = os.path.expanduser("~/.claude/sessions")
@@ -978,6 +978,28 @@ def render_preview(row, width, height, offset):
     return "\n".join(head + window), offset
 
 
+def proc_children():
+    """Mapa ppid → [pids] de todo el sistema (un solo ps)."""
+    kids = {}
+    for line in run_out(["ps", "-axo", "pid=,ppid="]).splitlines():
+        try:
+            pid, ppid = map(int, line.split())
+        except ValueError:
+            continue
+        kids.setdefault(ppid, []).append(pid)
+    return kids
+
+
+def descendants(pid, kids):
+    seen, stack = set(), [pid]
+    while stack:
+        for c in kids.get(stack.pop(), []):
+            if c not in seen:
+                seen.add(c)
+                stack.append(c)
+    return seen
+
+
 def collect():
     now = time.time()
     rows = []
@@ -1000,11 +1022,14 @@ def collect():
         if status not in ("waiting", "idle", "busy"):
             status = "busy"  # p.ej. "shell": está corriendo un comando
         # idle pero con el transcript escribiéndose hace poco = subagentes
-        # en background siguen trabajando aunque el turno principal terminó
+        # en background siguen trabajando aunque el turno principal terminó.
+        # Los jobs bg (claude daemon) escriben con pausas de minutos entre
+        # turnos, así que su ventana es más generosa.
         bg = False
+        window = 600 if d.get("kind") == "bg" else 90
         if status == "idle" and sid:
             try:
-                if now - os.path.getmtime(session_jsonl(cwd, sid)) < 90:
+                if now - os.path.getmtime(session_jsonl(cwd, sid)) < window:
                     bg, status = True, "busy"
             except OSError:
                 pass
@@ -1015,9 +1040,22 @@ def collect():
             "sessionId": sid,
             "status": status,
             "bg": bg,
+            "bg_note": "",
             "age": now - since,
             "waitingFor": clean(d.get("waitingFor", "")),
         })
+    # una sesión idle con jobs en background (claude daemon → sesiones bg
+    # descendientes que sí trabajan) también cuenta como trabajando
+    idle_rows = [r for r in rows if r["status"] == "idle"]
+    busy_rows = [r for r in rows if r["status"] == "busy"]
+    if idle_rows and busy_rows:
+        kids = proc_children()
+        for r in idle_rows:
+            desc = descendants(r["pid"], kids)
+            job = next((b for b in busy_rows if b["pid"] in desc), None)
+            if job:
+                r["bg"], r["status"] = True, "busy"
+                r["bg_note"] = job["name"]
     rows.sort(key=lambda r: -r["age"])
     return rows
 
@@ -1117,8 +1155,11 @@ def render(rows, width, height=0, show_keys=False, docker_detail=False,
                 if r["status"] == "waiting" and r["waitingFor"]:
                     lines.append(f"{' ' * indent}{RED}⏸ esperando: {r['waitingFor']}{RESET}")
                 if r.get("bg"):
-                    lines.append(f"{' ' * indent}{GREEN}⚙{RESET} {DIM}agentes en "
-                                 f"background activos{RESET}")
+                    note = (f"background: {r['bg_note'][:width - indent - 16]}"
+                            if r.get("bg_note") else
+                            "agentes en background activos")
+                    lines.append(f"{' ' * indent}{GREEN}⚙{RESET} "
+                                 f"{DIM}{note}{RESET}")
                 if with_snippets and r["status"] in ("waiting", "idle"):
                     snippet = last_assistant_text(
                         r["cwd"], r["sessionId"], max_len=width - indent - 3
