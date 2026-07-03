@@ -23,13 +23,13 @@ jobs:
       - name: bandit (SAST)
         run: bandit -ll -r src/
       - name: Guardia stdlib-only (supply chain)
-        run: python .github/scripts/stdlib_guard.py src/claudes.py src/claude_notify.py
+        run: python .github/scripts/stdlib_guard.py src/claudios.py src/claude_notify.py
       - name: Compilación
-        run: python -m py_compile src/claudes.py src/claude_notify.py
+        run: python -m py_compile src/claudios.py src/claude_notify.py
       - name: El tag debe coincidir con __version__
         run: |
           tag="${GITHUB_REF_NAME#v}"
-          ver="$(python -c "import re;print(re.search(r'__version__ = \"([^\"]+)\"', open('src/claudes.py').read()).group(1))")"
+          ver="$(python -c "import re;print(re.search(r'__version__ = \"([^\"]+)\"', open('src/claudios.py').read()).group(1))")"
           if [ "$tag" != "$ver" ]; then
             echo "::error::el tag v$tag no coincide con __version__ = $ver"
             exit 1
@@ -47,19 +47,19 @@ jobs:
         run: |
           ver="${GITHUB_REF_NAME#v}"
           mkdir -p dist
-          install -m 0755 src/claudes.py dist/claudes
+          install -m 0755 src/claudios.py dist/claudios
           install -m 0755 src/claude_notify.py dist/claude-notify
           install -m 0755 install.sh dist/install.sh
           cp README.md LICENSE dist/
-          tar -czf "dist/claude-monitor-$ver.tar.gz" -C dist claudes claude-notify install.sh README.md LICENSE
-          (cd dist && sha256sum claudes claude-notify install.sh "claude-monitor-$ver.tar.gz" > SHA256SUMS)
+          tar -czf "dist/claude-monitor-$ver.tar.gz" -C dist claudios claude-notify install.sh README.md LICENSE
+          (cd dist && sha256sum claudios claude-notify install.sh "claude-monitor-$ver.tar.gz" > SHA256SUMS)
           cat dist/SHA256SUMS
       - name: Publicar release con assets
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
-            dist/claudes dist/claude-notify dist/install.sh \
+            dist/claudios dist/claude-notify dist/install.sh \
             dist/claude-monitor-*.tar.gz dist/SHA256SUMS \
             --title "claude-monitor $GITHUB_REF_NAME" --generate-notes
       - name: Bump de la fórmula en rotorrest/homebrew-tap

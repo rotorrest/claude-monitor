@@ -24,9 +24,9 @@ jobs:
       - name: bandit (SAST)
         run: bandit -ll -r src/
       - name: Guardia stdlib-only (supply chain)
-        run: python .github/scripts/stdlib_guard.py src/claudes.py src/claude_notify.py
+        run: python .github/scripts/stdlib_guard.py src/claudios.py src/claude_notify.py
       - name: Compilación
-        run: python -m py_compile src/claudes.py src/claude_notify.py
+        run: python -m py_compile src/claudios.py src/claude_notify.py
       - name: shellcheck (installer)
         run: shellcheck install.sh
 
@@ -37,12 +37,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: --version / --help
         run: |
-          python3 src/claudes.py --version
-          python3 src/claudes.py --help
+          python3 src/claudios.py --version
+          python3 src/claudios.py --help
       - name: snapshot y --json corren sin sesiones
         run: |
-          python3 src/claudes.py
-          python3 src/claudes.py --json | python3 -c "import json,sys; json.load(sys.stdin)"
+          python3 src/claudios.py
+          python3 src/claudios.py --json | python3 -c "import json,sys; json.load(sys.stdin)"
       - name: claude-notify tolera stop encadenado y JSON inválido
         run: |
           echo '{"hook_event_name":"Stop","stop_hook_active":true}' | python3 src/claude_notify.py

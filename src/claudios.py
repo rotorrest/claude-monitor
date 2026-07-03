@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""claudes / claude-monitor — monitor de sesiones de Claude Code en esta máquina.
+"""claudios / claude-monitor — monitor de sesiones de Claude Code en esta máquina.
 
 Lee el estado que Claude Code publica en ~/.claude/sessions/<pid>.json
 y muestra qué sesiones están trabajando, cuáles terminaron su turno y
@@ -12,16 +12,16 @@ CPU en Apple Silicon requiere sudo (powermetrics), así que se usa la de
 la batería como proxy + el estado de throttling de pmset.
 
 Uso:
-  claudes                  # snapshot
-  claudes -w [seg]         # modo watch, refresca cada N segundos (default 3)
-  claudes focus <id>       # enfoca la pestaña de esa sesión (sessionId o pid)
-  claudes update           # se auto-actualiza desde el último release de GitHub
-  claudes --json           # snapshot de sesiones en JSON (para scripts/statuslines)
-  claudes --version        # muestra la versión
+  claudios                  # snapshot
+  claudios -w [seg]         # modo watch, refresca cada N segundos (default 3)
+  claudios focus <id>       # enfoca la pestaña de esa sesión (sessionId o pid)
+  claudios update           # se auto-actualiza desde el último release de GitHub
+  claudios --json           # snapshot de sesiones en JSON (para scripts/statuslines)
+  claudios --version        # muestra la versión
   claude-monitor           # igual, pero arranca en modo watch directo
 
 En modo watch revisa (máx. 1 vez al día) si hay versión nueva en GitHub y
-lo avisa en el pie de pantalla. Exportar CLAUDES_NO_UPDATE_CHECK=1 lo apaga;
+lo avisa en el pie de pantalla. Exportar CLAUDIOS_NO_UPDATE_CHECK=1 lo apaga;
 es la única llamada de red que hace la herramienta.
 
 En modo watch: presiona la tecla de una fila (1-9, a…) para saltar a esa
@@ -43,13 +43,13 @@ import termios
 import threading
 import time
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 GITHUB_REPO = "rotorrest/claude-monitor"
 
 SESSIONS_DIR = os.path.expanduser("~/.claude/sessions")
 PROJECTS_DIR = os.path.expanduser("~/.claude/projects")
 HOME = os.path.expanduser("~")
-UPDATE_STAMP = os.path.expanduser("~/.cache/claudes/latest-version")
+UPDATE_STAMP = os.path.expanduser("~/.cache/claudios/latest-version")
 
 RED = "\x1b[31m"
 YELLOW = "\x1b[33m"
@@ -373,7 +373,7 @@ def gh_get(path, timeout=8):
     req = urllib.request.Request(
         f"https://api.github.com/repos/{GITHUB_REPO}{path}",
         headers={"Accept": "application/vnd.github+json",
-                 "User-Agent": f"claudes/{__version__}"},
+                 "User-Agent": f"claudios/{__version__}"},
     )
     with urllib.request.urlopen(req, timeout=timeout) as r:  # nosec B310
         return json.load(r)
@@ -382,9 +382,9 @@ def gh_get(path, timeout=8):
 def check_update_once():
     """Aviso pasivo de versión nueva (máx. una consulta al día, fail-silent).
 
-    Es la única llamada de red de la herramienta; CLAUDES_NO_UPDATE_CHECK=1
+    Es la única llamada de red de la herramienta; CLAUDIOS_NO_UPDATE_CHECK=1
     la desactiva por completo."""
-    if os.environ.get("CLAUDES_NO_UPDATE_CHECK"):
+    if os.environ.get("CLAUDIOS_NO_UPDATE_CHECK"):
         return
     latest = None
     try:
@@ -411,7 +411,7 @@ def self_update():
     import tempfile
     import urllib.request
 
-    print(f"claudes v{__version__} · buscando release en {GITHUB_REPO}…")
+    print(f"claudios v{__version__} · buscando release en {GITHUB_REPO}…")
     try:
         rel = gh_get("/releases/latest", timeout=15)
     except Exception as e:
@@ -422,7 +422,7 @@ def self_update():
         return
     assets = {a.get("name"): a.get("browser_download_url")
               for a in rel.get("assets", [])}
-    for need in ("claudes", "claude-notify", "SHA256SUMS"):
+    for need in ("claudios", "claude-notify", "SHA256SUMS"):
         if not assets.get(need):
             sys.exit(f"el release v{ver} no trae el asset '{need}'")
 
@@ -430,7 +430,7 @@ def self_update():
         if not str(url).startswith("https://"):
             sys.exit(f"URL no-https en el release — aborto: {url}")
         req = urllib.request.Request(
-            url, headers={"User-Agent": f"claudes/{__version__}"})
+            url, headers={"User-Agent": f"claudios/{__version__}"})
         with urllib.request.urlopen(req, timeout=30) as r:  # nosec B310
             return r.read()
 
@@ -441,7 +441,7 @@ def self_update():
             sums[parts[1].lstrip("*")] = parts[0]
 
     bin_dir = os.path.dirname(os.path.realpath(__file__))
-    for name in ("claudes", "claude-notify"):
+    for name in ("claudios", "claude-notify"):
         data = fetch(assets[name])
         digest = hashlib.sha256(data).hexdigest()
         if digest != sums.get(name):
@@ -845,7 +845,7 @@ def watch_loop(interval):
             print(f"\n{DIM} refresca cada {interval:g}s · {hint}{RESET}", end="")
             if SLOW["update"]:
                 print(f"\n {YELLOW}⬆ v{SLOW['update']} disponible — "
-                      f"corre `claudes update`{RESET}", end="")
+                      f"corre `claudios update`{RESET}", end="")
             sys.stdout.flush()
             watch_fds = [sys.stdin, rpipe] if is_tty else [rpipe]
             r, _, _ = select.select(watch_fds, [], [], interval)
@@ -885,7 +885,7 @@ def main():
         self_update()
         return
     if args and args[0] in ("-v", "--version"):
-        print(f"claudes v{__version__}")
+        print(f"claudios v{__version__}")
         return
     if args and args[0] == "--json":
         print(json.dumps(collect(), indent=2, ensure_ascii=False))

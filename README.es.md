@@ -1,4 +1,4 @@
-# claude-monitor (`claudes`)
+# claude-monitor (Claudios)
 
 > Un solo comando para saber qué están haciendo **todos** tus Claude Code: quién trabaja, quién terminó, quién está bloqueado esperándote — y saltar a su pestaña con una tecla.
 
@@ -15,7 +15,7 @@
   <img src="docs/demo.svg" alt="claude-monitor mostrando sesiones de Claude Code agrupadas por atención" width="900">
 </p>
 
-Corres 5+ sesiones de Claude Code en paralelo y vives alt-tabeando para ver cuál te necesita. `claudes` lee el estado que Claude Code publica en `~/.claude/sessions/` y te lo muestra ordenado por atención: primero lo bloqueado, después lo parado (con el último mensaje de Claude, para saber *en qué quedó*), al final lo que sigue trabajando. Presionas la tecla de la fila y te planta en esa pestaña de Terminal/iTerm2.
+Corres 5+ sesiones de Claude Code en paralelo y vives alt-tabeando para ver cuál te necesita. `claudios` lee el estado que Claude Code publica en `~/.claude/sessions/` y te lo muestra ordenado por atención: primero lo bloqueado, después lo parado (con el último mensaje de Claude, para saber *en qué quedó*), al final lo que sigue trabajando. Presionas la tecla de la fila y te planta en esa pestaña de Terminal/iTerm2.
 
 ## Instalación
 
@@ -30,17 +30,17 @@ brew tap rotorrest/tap
 brew install claude-monitor
 ```
 
-El installer verifica los SHA256 del release, instala `claudes` + `claude-notify` en `~/.local/bin` y crea el alias `claude-monitor`. Cero dependencias: Python 3 de sistema y ya.
+El installer verifica los SHA256 del release, instala `claudios` + `claude-notify` en `~/.local/bin` y crea el alias `claude-monitor`. Cero dependencias: Python 3 de sistema y ya.
 
 ## Uso
 
 ```bash
-claudes                  # snapshot de todas las sesiones
-claudes -w [seg]         # modo watch (refresca cada N seg, default 3)
+claudios                  # snapshot de todas las sesiones
+claudios -w [seg]         # modo watch (refresca cada N seg, default 3)
 claude-monitor           # alias: arranca directo en modo watch
-claudes focus <id>       # enfoca la pestaña de esa sesión (sessionId o pid)
-claudes --json           # snapshot en JSON, para scripts/statuslines
-claudes update           # auto-update desde el último release (verifica SHA256)
+claudios focus <id>       # enfoca la pestaña de esa sesión (sessionId o pid)
+claudios --json           # snapshot en JSON, para scripts/statuslines
+claudios update           # auto-update desde el último release (verifica SHA256)
 ```
 
 ### Teclas en modo watch
@@ -80,7 +80,7 @@ Agrega a `~/.claude/settings.json` (fusiona con tus hooks existentes, no los ree
 
 ## Modo JSON
 
-`claudes --json` emite el estado crudo para componer con statuslines, SwiftBar/xbar, o lo que quieras:
+`claudios --json` emite el estado crudo para componer con statuslines, SwiftBar/xbar, o lo que quieras:
 
 ```json
 [
@@ -99,9 +99,9 @@ Agrega a `~/.claude/settings.json` (fusiona con tus hooks existentes, no los ree
 
 ## Auto-update
 
-- `claudes update` descarga el último release de GitHub, **verifica cada archivo contra `SHA256SUMS`** y se reemplaza atómicamente.
+- `claudios update` descarga el último release de GitHub, **verifica cada archivo contra `SHA256SUMS`** y se reemplaza atómicamente.
 - En modo watch revisa (máximo una vez al día) si hay versión nueva y lo avisa en el pie de pantalla.
-- `CLAUDES_NO_UPDATE_CHECK=1` apaga el chequeo. Si instalaste por brew, puedes preferir `brew upgrade claude-monitor`.
+- `CLAUDIOS_NO_UPDATE_CHECK=1` apaga el chequeo. Si instalaste por brew, puedes preferir `brew upgrade claude-monitor`.
 
 ## Seguridad y privacidad
 
@@ -140,16 +140,16 @@ Ideas mapeadas de las mejores herramientas del ecosistema — crédito donde cor
 
 ```bash
 git clone https://github.com/rotorrest/claude-monitor && cd claude-monitor
-python3 src/claudes.py -w        # correr desde el fuente
+python3 src/claudios.py -w        # correr desde el fuente
 ruff check src/ && bandit -ll -r src/
 ```
 
-Los PRs corren el mismo CI (lint, SAST, CodeQL, smoke test en macOS). Para publicar: bump de `__version__` en `src/claudes.py`, tag `vX.Y.Z`, push del tag — el pipeline hace el resto (gate de seguridad → build → release con checksums → bump de la fórmula de brew).
+Los PRs corren el mismo CI (lint, SAST, CodeQL, smoke test en macOS). Para publicar: bump de `__version__` en `src/claudios.py`, tag `vX.Y.Z`, push del tag — el pipeline hace el resto (gate de seguridad → build → release con checksums → bump de la fórmula de brew).
 
 ## Desinstalar
 
 ```bash
-rm ~/.local/bin/claudes ~/.local/bin/claude-notify ~/.local/bin/claude-monitor
+rm ~/.local/bin/claudios ~/.local/bin/claude-notify ~/.local/bin/claude-monitor
 # o: brew uninstall claude-monitor
 ```
 

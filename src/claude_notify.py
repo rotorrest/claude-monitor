@@ -4,7 +4,7 @@
 Recibe el JSON del hook por stdin (eventos Notification y Stop) y muestra
 una notificación con el proyecto y el motivo. Si terminal-notifier está
 instalado (brew install terminal-notifier), hacer clic en la notificación
-enfoca la pestaña de Terminal/iTerm2 de esa sesión vía `claudes focus`.
+enfoca la pestaña de Terminal/iTerm2 de esa sesión vía `claudios focus`.
 Sin terminal-notifier cae al osascript de siempre (clic sin acción).
 Usado desde ~/.claude/settings.json.
 """
@@ -21,14 +21,14 @@ CTRL_RE = re.compile(r"[\x00-\x1f\x7f]")
 
 def find_claudes():
     # mismo directorio que este script (instalación normal), PATH, o ~/.local/bin
-    here = os.path.join(os.path.dirname(os.path.realpath(__file__)), "claudes")
+    here = os.path.join(os.path.dirname(os.path.realpath(__file__)), "claudios")
     if os.path.exists(here):
         return here
-    return (shutil.which("claudes")
-            or os.path.expanduser("~/.local/bin/claudes"))
+    return (shutil.which("claudios")
+            or os.path.expanduser("~/.local/bin/claudios"))
 
 
-CLAUDES = find_claudes()
+CLAUDIOS = find_claudes()
 
 
 def esc(s):
@@ -81,8 +81,8 @@ def main():
                "-group", f"claude-{session_id or proj}"]
         if sound:
             cmd += ["-sound", sound]
-        if session_id and os.path.exists(CLAUDES):
-            cmd += ["-execute", f'"{CLAUDES}" focus {session_id}']
+        if session_id and os.path.exists(CLAUDIOS):
+            cmd += ["-execute", f'"{CLAUDIOS}" focus {session_id}']
         subprocess.run(cmd, capture_output=True, timeout=10)
         return
 

@@ -1,4 +1,4 @@
-# claude-monitor (`claudes`)
+# claude-monitor (Claudios)
 
 > One command to see what **all** your Claude Code sessions are doing: who's working, who finished, who's blocked waiting for you — and jump to its terminal tab with a single keystroke.
 
@@ -15,7 +15,7 @@
   <img src="docs/demo.svg" alt="claude-monitor TUI showing Claude Code sessions grouped by attention: blocked, waiting for reply, and working" width="900">
 </p>
 
-You run 5+ Claude Code sessions in parallel and live alt-tabbing to check which one needs you. `claudes` reads the state Claude Code publishes in `~/.claude/sessions/` and shows it sorted by attention: blocked sessions first, then stopped ones (with Claude's last message, so you know *where it left off*), then the ones still working. Press a row's key and it drops you in that session's terminal tab.
+You run 5+ Claude Code sessions in parallel and live alt-tabbing to check which one needs you. `claudios` reads the state Claude Code publishes in `~/.claude/sessions/` and shows it sorted by attention: blocked sessions first, then stopped ones (with Claude's last message, so you know *where it left off*), then the ones still working. Press a row's key and it drops you in that session's terminal tab.
 
 ## Install
 
@@ -30,17 +30,17 @@ brew tap rotorrest/tap
 brew install claude-monitor
 ```
 
-The installer verifies the release's SHA256 checksums, installs `claudes` + `claude-notify` into `~/.local/bin` and creates the `claude-monitor` alias. Zero dependencies: system Python 3 and nothing else.
+The installer verifies the release's SHA256 checksums, installs `claudios` + `claude-notify` into `~/.local/bin` and creates the `claude-monitor` alias. Zero dependencies: system Python 3 and nothing else.
 
 ## Usage
 
 ```bash
-claudes                  # snapshot of every session
-claudes -w [sec]         # watch mode (refreshes every N sec, default 3)
+claudios                  # snapshot of every session
+claudios -w [sec]         # watch mode (refreshes every N sec, default 3)
 claude-monitor           # alias: starts straight in watch mode
-claudes focus <id>       # focus that session's tab (sessionId or pid)
-claudes --json           # JSON snapshot, for scripts/statuslines
-claudes update           # self-update from the latest release (SHA256-verified)
+claudios focus <id>       # focus that session's tab (sessionId or pid)
+claudios --json           # JSON snapshot, for scripts/statuslines
+claudios update           # self-update from the latest release (SHA256-verified)
 ```
 
 ### Watch-mode keys
@@ -80,7 +80,7 @@ Add to `~/.claude/settings.json` (merge with your existing hooks, don't replace 
 
 ## JSON mode
 
-`claudes --json` emits raw state to compose with statuslines, SwiftBar/xbar, or anything else:
+`claudios --json` emits raw state to compose with statuslines, SwiftBar/xbar, or anything else:
 
 ```json
 [
@@ -99,9 +99,9 @@ Add to `~/.claude/settings.json` (merge with your existing hooks, don't replace 
 
 ## Auto-update
 
-- `claudes update` downloads the latest GitHub release, **verifies every file against `SHA256SUMS`** and replaces itself atomically.
+- `claudios update` downloads the latest GitHub release, **verifies every file against `SHA256SUMS`** and replaces itself atomically.
 - Watch mode checks (at most once a day) whether a new version exists and says so in the footer.
-- `CLAUDES_NO_UPDATE_CHECK=1` turns the check off. If you installed via brew you may prefer `brew upgrade claude-monitor`.
+- `CLAUDIOS_NO_UPDATE_CHECK=1` turns the check off. If you installed via brew you may prefer `brew upgrade claude-monitor`.
 
 ## Security & privacy
 
@@ -140,17 +140,17 @@ Ideas mapped from the best tools in the ecosystem — credit where due:
 
 ```bash
 git clone https://github.com/rotorrest/claude-monitor && cd claude-monitor
-python3 src/claudes.py -w        # run from source
+python3 src/claudios.py -w        # run from source
 ruff check src/ && bandit -ll -r src/
 python3 tools/screenshot.py docs/demo.svg   # regenerate the README screenshot
 ```
 
-PRs run the same CI (lint, SAST, CodeQL, macOS smoke test). To release: bump `__version__` in `src/claudes.py`, tag `vX.Y.Z`, push the tag — the pipeline does the rest (security gate → build → release with checksums → brew formula bump).
+PRs run the same CI (lint, SAST, CodeQL, macOS smoke test). To release: bump `__version__` in `src/claudios.py`, tag `vX.Y.Z`, push the tag — the pipeline does the rest (security gate → build → release with checksums → brew formula bump).
 
 ## Uninstall
 
 ```bash
-rm ~/.local/bin/claudes ~/.local/bin/claude-notify ~/.local/bin/claude-monitor
+rm ~/.local/bin/claudios ~/.local/bin/claude-notify ~/.local/bin/claude-monitor
 # or: brew uninstall claude-monitor
 ```
 
