@@ -25,12 +25,12 @@ BASE="https://github.com/$REPO/releases/download/$TAG"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-echo "→ descargando claudes $TAG…"
+echo "→ descargando claudes ${TAG}"
 for f in claudes claude-notify SHA256SUMS; do
   curl -fsSL -o "$TMP/$f" "$BASE/$f"
 done
 
-echo "→ verificando SHA256…"
+echo "→ verificando SHA256"
 (cd "$TMP" && grep -E ' \*?(claudes|claude-notify)$' SHA256SUMS | shasum -a 256 -c - >/dev/null)
 
 mkdir -p "$INSTALL_DIR"
@@ -38,7 +38,7 @@ install -m 0755 "$TMP/claudes" "$INSTALL_DIR/claudes"
 install -m 0755 "$TMP/claude-notify" "$INSTALL_DIR/claude-notify"
 ln -sf "$INSTALL_DIR/claudes" "$INSTALL_DIR/claude-monitor"
 
-echo "✓ claudes $TAG instalado en $INSTALL_DIR (claudes, claude-monitor, claude-notify)"
+echo "✓ claudes ${TAG} instalado en ${INSTALL_DIR} (claudes, claude-monitor, claude-notify)"
 
 case ":$PATH:" in
   *":$INSTALL_DIR:"*) ;;
