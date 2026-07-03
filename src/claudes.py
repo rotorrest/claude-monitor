@@ -36,6 +36,7 @@ import os
 import re
 import select
 import shutil
+import signal
 import subprocess
 import sys
 import termios
@@ -374,7 +375,6 @@ def gh_get(path, timeout=8):
         headers={"Accept": "application/vnd.github+json",
                  "User-Agent": f"claudes/{__version__}"},
     )
-    # nosec B310: URL fija https a api.github.com
     with urllib.request.urlopen(req, timeout=timeout) as r:  # nosec B310
         return json.load(r)
 
@@ -451,7 +451,8 @@ def self_update():
         try:
             with os.fdopen(fd, "wb") as fh:
                 fh.write(data)
-            os.chmod(tmp, 0o755)
+            # nosec B103: es un ejecutable de CLI, 755 es el permiso correcto
+            os.chmod(tmp, 0o755)  # nosec B103
             os.replace(tmp, dest)
         except BaseException:
             try:
@@ -715,66 +716,30 @@ def collect():
     return rows
 
 
-def render(rows, width, show_keys=False, docker_detail=False):
+def render(rows, width, height=0, show_keys=False, docker_detail=False):
+    """Arma el frame. Si height > 0, garantiza que quepa: primero quita los
+    snippets, y si aún no entra trunca filas con «… +N sesiones más»."""
     ttys = ttys_for([r["pid"] for r in rows])
     name_w = min(max([len(r["name"]) for r in rows] or [10]), 30)
     key_w = 3 if show_keys else 0
     indent = 12 + key_w
-    lines = []
-    keymap = {}
-    key_i = 0
 
     counts = {k: sum(1 for r in rows if r["status"] == k) for k, _, _ in GROUPS}
+    head = []
     head_l = f" {BOLD}CLAUDE MONITOR{RESET}{DIM} · {len(rows)} sesiones{RESET}"
     head_r = time.strftime("%H:%M:%S")
     pad = width - (17 + len(f" · {len(rows)} sesiones")) - len(head_r) - 1
-    lines.append(head_l + " " * max(1, pad) + DIM + head_r + RESET)
-    lines.append(DIM + "─" * width + RESET)
-    lines.extend(sys_block(width, docker_detail))
-    lines.append(DIM + "─" * width + RESET)
+    head.append(head_l + " " * max(1, pad) + DIM + head_r + RESET)
+    head.append(DIM + "─" * width + RESET)
+    head.extend(sys_block(width, docker_detail))
+    head.append(DIM + "─" * width + RESET)
+    if height and height < len(head) + 9:
+        head = head[:2]  # terminal muy bajita: fuera las métricas de sistema
 
     if not rows:
-        lines.append(f"{DIM} No hay sesiones de Claude Code corriendo.{RESET}")
-        return "\n".join(lines), keymap
+        head.append(f"{DIM} No hay sesiones de Claude Code corriendo.{RESET}")
+        return "\n".join(head), {}
 
-    for status, color, title in GROUPS:
-        group = [r for r in rows if r["status"] == status]
-        if not group:
-            continue
-        lines.append("")
-        lines.append(f"{' ' * (1 + key_w)}{color}{BOLD}▍{title}{RESET} {DIM}({len(group)}){RESET}")
-        for r in group:
-            tty = ttys.get(r["pid"])
-            key = ""
-            if show_keys and key_i < len(KEYS):
-                key = KEYS[key_i]
-                key_i += 1
-                r["_tty"] = tty
-                keymap[key] = r
-            key_part = f" {DIM}{key or ' '}{RESET} " if show_keys else " "
-            right = f"{tty or '?'} · {r['pid']} "
-            age = fmt_age(r["age"])
-            path_max = max(12, width - (10 + key_w + name_w + 2) - len(right) - 2)
-            path = shorten_path(r["cwd"], path_max)
-            left_visible = (1 + key_w) + 2 + 6 + 2 + name_w + 2 + len(path)
-            gap = max(1, width - left_visible - len(right))
-            lines.append(
-                f"{key_part}{color}●{RESET} {age:>6}  {BOLD}{r['name']:<{name_w}}{RESET}"
-                f"  {path}{' ' * gap}{DIM}{right}{RESET}"
-            )
-            if r["status"] == "waiting" and r["waitingFor"]:
-                lines.append(f"{' ' * indent}{RED}⏸ esperando: {r['waitingFor']}{RESET}")
-            if r.get("bg"):
-                lines.append(f"{' ' * indent}{GREEN}⚙{RESET} {DIM}agentes en "
-                             f"background activos{RESET}")
-            if r["status"] in ("waiting", "idle"):
-                snippet = last_assistant_text(
-                    r["cwd"], r["sessionId"], max_len=width - indent - 3
-                )
-                if snippet:
-                    lines.append(f"{' ' * indent}{DIM}└ {snippet}{RESET}")
-
-    lines.append("")
     summary = []
     if counts["waiting"]:
         summary.append(f"{RED}{BOLD}{counts['waiting']} esperan tu acción{RESET}")
@@ -782,12 +747,72 @@ def render(rows, width, show_keys=False, docker_detail=False):
         summary.append(f"{YELLOW}{counts['idle']} paradas{RESET}")
     if counts["busy"]:
         summary.append(f"{GREEN}{counts['busy']} trabajando{RESET}")
-    lines.append(" " + f"{DIM} · {RESET}".join(summary))
+    summary_line = " " + f"{DIM} · {RESET}".join(summary)
+
+    def build(with_snippets, budget):
+        lines = list(head)
+        keymap = {}
+        key_i = 0
+        hidden = 0
+        for status, color, title in GROUPS:
+            group = [r for r in rows if r["status"] == status]
+            if not group:
+                continue
+            if budget and len(lines) + 2 >= budget:
+                hidden += len(group)
+                continue
+            lines.append("")
+            lines.append(f"{' ' * (1 + key_w)}{color}{BOLD}▍{title}{RESET} {DIM}({len(group)}){RESET}")
+            for r in group:
+                if budget and len(lines) >= budget:
+                    hidden += 1
+                    continue
+                tty = ttys.get(r["pid"])
+                key = ""
+                if show_keys and key_i < len(KEYS):
+                    key = KEYS[key_i]
+                    key_i += 1
+                    r["_tty"] = tty
+                    keymap[key] = r
+                key_part = f" {DIM}{key or ' '}{RESET} " if show_keys else " "
+                right = f"{tty or '?'} · {r['pid']} "
+                age = fmt_age(r["age"])
+                path_max = max(12, width - (10 + key_w + name_w + 2) - len(right) - 2)
+                path = shorten_path(r["cwd"], path_max)
+                left_visible = (1 + key_w) + 2 + 6 + 2 + name_w + 2 + len(path)
+                gap = max(1, width - left_visible - len(right))
+                lines.append(
+                    f"{key_part}{color}●{RESET} {age:>6}  {BOLD}{r['name'][:name_w]:<{name_w}}{RESET}"
+                    f"  {path}{' ' * gap}{DIM}{right}{RESET}"
+                )
+                if r["status"] == "waiting" and r["waitingFor"]:
+                    lines.append(f"{' ' * indent}{RED}⏸ esperando: {r['waitingFor']}{RESET}")
+                if r.get("bg"):
+                    lines.append(f"{' ' * indent}{GREEN}⚙{RESET} {DIM}agentes en "
+                                 f"background activos{RESET}")
+                if with_snippets and r["status"] in ("waiting", "idle"):
+                    snippet = last_assistant_text(
+                        r["cwd"], r["sessionId"], max_len=width - indent - 3
+                    )
+                    if snippet:
+                        lines.append(f"{' ' * indent}{DIM}└ {snippet}{RESET}")
+        if hidden:
+            lines.append(f"{' ' * (1 + key_w)}{DIM}… +{hidden} sesiones más{RESET}")
+        lines.append("")
+        lines.append(summary_line)
+        return lines, keymap
+
+    lines, keymap = build(True, 0)
+    if height and len(lines) + 4 > height:
+        lines, keymap = build(False, 0)
+        if len(lines) + 4 > height:
+            lines, keymap = build(False, max(len(head), height - 7))
     return "\n".join(lines), keymap
 
 
-def term_width():
-    return min(shutil.get_terminal_size((110, 30)).columns, 160)
+def term_size():
+    s = shutil.get_terminal_size((110, 30))
+    return min(s.columns, 200), s.lines
 
 
 def watch_loop(interval):
@@ -796,6 +821,11 @@ def watch_loop(interval):
     old_attrs = None
     docker_detail = False
     threading.Thread(target=slow_loop, daemon=True).start()
+    # self-pipe: SIGWINCH (resize) despierta el select → redibujo inmediato
+    rpipe, wpipe = os.pipe()
+    os.set_blocking(wpipe, False)
+    signal.set_wakeup_fd(wpipe, warn_on_full_buffer=False)
+    signal.signal(signal.SIGWINCH, lambda signum, frame: None)
     sys.stdout.write("\x1b[?1049h\x1b[?25l")  # alt-screen + cursor oculto
     try:
         if is_tty:
@@ -804,34 +834,40 @@ def watch_loop(interval):
             raw[3] &= ~(termios.ICANON | termios.ECHO)
             termios.tcsetattr(fd, termios.TCSANOW, raw)
         while True:
-            out, keymap = render(collect(), term_width(), show_keys=is_tty,
-                                 docker_detail=docker_detail)
+            width, height = term_size()
+            out, keymap = render(collect(), width, height=height,
+                                 show_keys=is_tty, docker_detail=docker_detail)
             sys.stdout.write("\x1b[2J\x1b[H")
             print(out)
-            hint = ("tecla = ir a esa pestaña · d docker · q salir" if is_tty
+            hint = ("tecla = ir a esa sesión · d docker · q salir" if is_tty
                     else "Ctrl+C para salir")
-            print(f"\n{DIM} refresca cada {interval:g}s · {hint}{RESET}")
+            # sin newline final: si la última línea hace scroll se pierde el título
+            print(f"\n{DIM} refresca cada {interval:g}s · {hint}{RESET}", end="")
             if SLOW["update"]:
-                print(f" {YELLOW}⬆ v{SLOW['update']} disponible — "
-                      f"corre `claudes update`{RESET}")
+                print(f"\n {YELLOW}⬆ v{SLOW['update']} disponible — "
+                      f"corre `claudes update`{RESET}", end="")
             sys.stdout.flush()
-            if is_tty:
-                r, _, _ = select.select([sys.stdin], [], [], interval)
-                if r:
-                    ch = sys.stdin.read(1)
-                    if ch in ("q", "Q"):
-                        break
-                    if ch in ("d", "D"):
-                        docker_detail = not docker_detail
-                        continue
-                    row = keymap.get(ch)
-                    if row:
-                        focus_row(row["_tty"], row["cwd"], row["pid"])
-            else:
-                time.sleep(interval)
+            watch_fds = [sys.stdin, rpipe] if is_tty else [rpipe]
+            r, _, _ = select.select(watch_fds, [], [], interval)
+            if rpipe in r:
+                os.read(rpipe, 1024)  # drenar el aviso de resize
+                continue              # redibujar ya, sin esperar el tick
+            if is_tty and sys.stdin in r:
+                ch = sys.stdin.read(1)
+                if ch in ("q", "Q"):
+                    break
+                if ch in ("d", "D"):
+                    docker_detail = not docker_detail
+                    continue
+                row = keymap.get(ch)
+                if row:
+                    focus_row(row["_tty"], row["cwd"], row["pid"])
     except KeyboardInterrupt:
         pass
     finally:
+        signal.set_wakeup_fd(-1)
+        os.close(rpipe)
+        os.close(wpipe)
         if old_attrs is not None:
             termios.tcsetattr(fd, termios.TCSANOW, old_attrs)
         sys.stdout.write("\x1b[?1049l\x1b[?25h")
@@ -867,7 +903,7 @@ def main():
 
     if watch is None:
         refresh_slow()
-        print(render(collect(), term_width(), docker_detail=True)[0])
+        print(render(collect(), term_size()[0], docker_detail=True)[0])
     else:
         watch_loop(watch)
 
