@@ -51,7 +51,8 @@ claudios update           # self-update from the latest release (SHA256-verified
 | Key | Action |
 |-----|--------|
 | `↑`/`↓` or `j`/`k` | move the selection cursor between sessions |
-| `→` or `l` | open the selected session's conversation, live, without leaving the terminal (`↑↓` scroll, `←`/`Esc` back) |
+| `→` or `l` | expand the session's agent tree inline — each background agent and what it's doing right now (`←` collapses) |
+| `p` | open the full conversation, live, without leaving the terminal (`↑↓` scroll, `←`/`Esc` back) |
 | `Enter` | jump to the selected session, across Spaces/screens |
 | `1-9`, `a`… | jump straight to that row (quick keys) |
 | `d` | per-container Docker detail |

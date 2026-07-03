@@ -33,9 +33,10 @@ En modo watch: muévete entre sesiones con ↑/↓ (o j/k) y Enter para ir a
 la seleccionada, o presiona directo la tecla de una fila (1-9, a…) —
 pestaña exacta en Terminal/iTerm2 (por tty), ventana del proyecto en
 Cursor/VS Code/Ghostty/Windsurf — cruzando Spaces/pantallas.
-Con → (o l) abres la conversación de la sesión seleccionada en vivo sin
-salir de la terminal: ↑/↓ hace scroll, Enter salta a su terminal real,
-← / Esc vuelve a la lista.
+Con → (o l) expandes el árbol de la sesión seleccionada: ves cada agente
+en background y qué está haciendo ahora, sin entrar. ← lo colapsa.
+Con p abres la conversación completa en vivo (↑/↓ scroll, ←/Esc vuelve).
+Enter salta a la terminal real de la sesión.
 d para detalle de Docker; u para detalle de uso; q para salir.
 """
 
@@ -54,7 +55,7 @@ import textwrap
 import threading
 import time
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 GITHUB_REPO = "rotorrest/claude-monitor"
 
 SESSIONS_DIR = os.path.expanduser("~/.claude/sessions")
@@ -1006,6 +1007,93 @@ def active_agents(cwd, sid, window=180):
     return n
 
 
+def read_agent(path, max_bytes=524288):
+    """Label (prompt de la tarea) + última actividad de un .output de agente."""
+    try:
+        size = os.path.getsize(path)
+        with open(path, "rb") as fh:
+            if size <= max_bytes:
+                data = fh.read()
+            else:  # head para el label + tail para la actividad reciente
+                head = fh.read(65536)
+                fh.seek(size - max_bytes)
+                data = head + b"\n" + fh.read()
+    except OSError:
+        return None
+    label = kind = activity = None
+    for line in data.decode("utf-8", "replace").splitlines():
+        if '"type"' not in line:
+            continue
+        try:
+            j = json.loads(line)
+        except ValueError:
+            continue
+        if j.get("isMeta"):
+            continue
+        msg = j.get("message") or {}
+        t = j.get("type")
+        if t == "user" and label is None:
+            c = msg.get("content")
+            if isinstance(c, str):
+                txt = c
+            elif isinstance(c, list):
+                txt = next((b.get("text", "") for b in c
+                            if isinstance(b, dict) and b.get("type") == "text"), "")
+            else:
+                txt = ""
+            txt = clean(re.sub(r"\s+", " ", txt)).strip()
+            if txt:
+                label = txt
+        elif t == "assistant":
+            for b in msg.get("content") or []:
+                if not isinstance(b, dict):
+                    continue
+                if b.get("type") == "text" and b.get("text", "").strip():
+                    kind = "text"
+                    activity = clean(re.sub(r"\s+", " ", b["text"])).strip()
+                elif b.get("type") == "tool_use":
+                    kind = "tool"
+                    detail = compact_input(b.get("input"))
+                    activity = (f"{b.get('name', '?')}: {detail}" if detail
+                                else b.get("name", "?"))
+    if label is None and activity is None:
+        return None
+    return {"label": label or "agente", "kind": kind or "text",
+            "activity": activity or "…"}
+
+
+def agent_tree(cwd, sid, window=180, limit=8):
+    """Lista de agentes de la sesión con su actividad; activos primero."""
+    if not sid:
+        return []
+    tdir = os.path.join(
+        TASKS_BASE, re.sub(r"[^A-Za-z0-9]", "-", cwd), sid, "tasks")
+    now = time.time()
+    try:
+        names = os.listdir(tdir)
+    except OSError:
+        return []
+    items = []
+    for name in names:
+        if not name.endswith(".output"):
+            continue
+        path = os.path.join(tdir, name)
+        try:
+            age = now - os.path.getmtime(path)
+        except OSError:
+            continue
+        items.append((age, path))
+    items.sort()
+    out = []
+    for age, path in items[:limit]:
+        info = read_agent(path)
+        if info:
+            info["active"] = age < window
+            out.append(info)
+    active = [i for i in out if i["active"]]
+    return active if active else out[:3]
+
+
 def proc_children():
     """Mapa ppid → [pids] de todo el sistema (un solo ps)."""
     kids = {}
@@ -1093,7 +1181,7 @@ def collect():
 
 
 def render(rows, width, height=0, show_keys=False, docker_detail=False,
-           usage_detail=False, selected_pid=None):
+           usage_detail=False, selected_pid=None, expanded=()):
     """Arma el frame. Si height > 0, garantiza que quepa: primero quita los
     snippets, y si aún no entra trunca filas con «… +N sesiones más»."""
     ttys = ttys_for([r["pid"] for r in rows])
@@ -1186,6 +1274,34 @@ def render(rows, width, height=0, show_keys=False, docker_detail=False,
                 )
                 if r["status"] == "waiting" and r["waitingFor"]:
                     lines.append(f"{' ' * indent}{RED}⏸ esperando: {r['waitingFor']}{RESET}")
+                if r["pid"] in expanded:
+                    tree = agent_tree(r["cwd"], r["sessionId"])
+                    if tree:
+                        lines.append(f"{' ' * indent}{GREEN}⚙{RESET} "
+                                     f"{DIM}{len(tree)} agente"
+                                     f"{'s' if len(tree) > 1 else ''}:{RESET}")
+                        lab_w = 22
+                        for ai, a in enumerate(tree):
+                            branch = "└" if ai == len(tree) - 1 else "├"
+                            if not a["active"]:
+                                icon, ic = "✓", DIM
+                            elif a["kind"] == "tool":
+                                icon, ic = "⚙", GREEN
+                            else:
+                                icon, ic = "▸", GREEN
+                            label = a["label"][:lab_w]
+                            act_w = max(10, width - indent - lab_w - 8)
+                            act = a["activity"][:act_w]
+                            lines.append(
+                                f"{' ' * indent}{DIM}{branch}{RESET} "
+                                f"{BOLD}{label:<{lab_w}}{RESET} "
+                                f"{ic}{icon}{RESET} {DIM}{act}{RESET}")
+                    else:
+                        snippet = last_assistant_text(
+                            r["cwd"], r["sessionId"], max_len=width - indent - 3)
+                        lines.append(f"{' ' * indent}{DIM}└ "
+                                     f"{snippet or 'sin agentes activos'}{RESET}")
+                    continue
                 if r.get("bg") or r.get("agents"):
                     notes = []
                     if r.get("agents"):
@@ -1196,9 +1312,10 @@ def render(rows, width, height=0, show_keys=False, docker_detail=False,
                         notes.append(f"job: {r['bg_note'][:40]}")
                     if not notes:
                         notes.append("actividad en background")
-                    note = " · ".join(notes)[:width - indent - 3]
+                    tail = f"  {DIM}(→ ver){RESET}" if r.get("agents") else ""
+                    note = " · ".join(notes)
                     lines.append(f"{' ' * indent}{GREEN}⚙{RESET} "
-                                 f"{DIM}{note}{RESET}")
+                                 f"{DIM}{note}{RESET}{tail}")
                 if with_snippets and r["status"] in ("waiting", "idle"):
                     snippet = last_assistant_text(
                         r["cwd"], r["sessionId"], max_len=width - indent - 3
@@ -1232,6 +1349,7 @@ def watch_loop(interval):
     selected_pid = None
     mode = "list"       # "list" | "preview"
     preview_offset = 0
+    expanded = set()    # pids con el árbol de agentes desplegado
     reload_pending = False
     # auto-reload: si el binario en disco cambia (claudios update / brew
     # upgrade), el watch se re-ejecuta solo — el proceso viejo no se queda
@@ -1299,13 +1417,15 @@ def watch_loop(interval):
                         " · q salir")
             else:
                 mode = "list"
+                expanded &= visible  # olvidar sesiones que ya no están
                 out, keymap = render(rows, width, height=height,
                                      show_keys=is_tty,
                                      docker_detail=docker_detail,
                                      usage_detail=usage_detail,
-                                     selected_pid=selected_pid)
+                                     selected_pid=selected_pid,
+                                     expanded=expanded)
                 order = list(keymap.values())  # filas visibles en orden
-                hint = ("↑↓ mover · → ver · Enter ir · d docker · u uso"
+                hint = ("↑↓ mover · → árbol · Enter ir · p ver · d docker"
                         " · q salir" if is_tty else "Ctrl+C para salir")
             sys.stdout.write("\x1b[2J\x1b[H")
             print(out)
@@ -1343,6 +1463,14 @@ def watch_loop(interval):
                     usage_detail = not usage_detail
                     continue
                 if ch in ("right", "l", "L", " ") and order:
+                    if selected_pid is None:
+                        selected_pid = order[0]["pid"]
+                    expanded.add(selected_pid)  # desplegar árbol inline
+                    continue
+                if ch in ("left", "h", "H") and selected_pid in expanded:
+                    expanded.discard(selected_pid)  # colapsar
+                    continue
+                if ch in ("p", "P") and order:
                     if selected_pid is None:
                         selected_pid = order[0]["pid"]
                     mode = "preview"

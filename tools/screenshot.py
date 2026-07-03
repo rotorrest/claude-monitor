@@ -84,6 +84,15 @@ DEMO_DOCKER["cpu"] = sum(r["cpu"] for r in DEMO_DOCKER["rows"])
 DEMO_DOCKER["mem"] = sum(r["mem"] for r in DEMO_DOCKER["rows"])
 DEMO_DOCKER["limit"] = 8 * 2**30
 
+DEMO_TREE = [
+    {"label": "scraper de precios", "kind": "tool",
+     "activity": "Bash: pytest -x tests/parser", "active": True},
+    {"label": "trace del endpoint", "kind": "tool",
+     "activity": "Read: routes/api/prices.php", "active": True},
+    {"label": "revisor de codigo", "kind": "text",
+     "activity": "Veredicto: aprobado con 2 nits", "active": False},
+]
+
 DEMO_USAGE = {
     "in": 182_000, "out": 1_240_000, "cw": 9_800_000, "cr": 212_000_000,
     "total": 223_222_000, "cost": 301.87, "burn": 195_000,
@@ -173,11 +182,13 @@ def frame_lines(m, cols, live):
             lambda cwd, sid, max_len:
             DEMO_SNIPPETS.get(cwd, "")[:max_len])
         m.HOME = "/Users/dev"
+        m.agent_tree = lambda cwd, sid, **k: DEMO_TREE
         rows = DEMO_ROWS
     selected = None if live else DEMO_ROWS[0]["pid"]
-    frame, _ = m.render(rows, cols, height=46, show_keys=True,
+    expanded = set() if live else {DEMO_ROWS[5]["pid"]}  # data-pipeline
+    frame, _ = m.render(rows, cols, height=48, show_keys=True,
                         docker_detail=True, usage_detail=True,
-                        selected_pid=selected)
+                        selected_pid=selected, expanded=expanded)
     return frame
 
 

@@ -51,7 +51,8 @@ claudios update           # auto-update desde el último release (verifica SHA25
 | Tecla | Acción |
 |-------|--------|
 | `↑`/`↓` o `j`/`k` | mover el cursor de selección entre sesiones |
-| `→` o `l` | abrir la conversación de la sesión seleccionada, en vivo, sin salir de la terminal (`↑↓` scroll, `←`/`Esc` volver) |
+| `→` o `l` | expandir el árbol de agentes de la sesión inline — cada agente en background y qué hace ahora (`←` colapsa) |
+| `p` | abrir la conversación completa, en vivo, sin salir de la terminal (`↑↓` scroll, `←`/`Esc` volver) |
 | `Enter` | saltar a la sesión seleccionada, cruzando Spaces/pantallas |
 | `1-9`, `a`… | saltar directo a esa fila (teclas rápidas) |
 | `d` | detalle de Docker por contenedor |
