@@ -16,6 +16,13 @@ message.usage de los JSONL locales de ~/.claude/projects — cero red):
 totales in/out/cache, costo API equivalente estimado, burn rate con
 sparkline de los últimos 10 minutos, y top de sesiones con la tecla u.
 
+También muestra el bloque de 5h de Claude (LÍMITE 5h): cuánto falta para
+que se libere el cupo (el bloque reinicia 5h después de tu primer mensaje),
+un medidor de lo quemado y a qué hora topas al ritmo actual. Como el cupo
+real del plan no está en ningún archivo local, el 100% es el bloque más
+pesado que se haya visto (marca de agua); fija un tope real con la env
+CLAUDIOS_LIMIT_5H (en tokens facturables in+out+cache-write del bloque).
+
 Uso:
   claudios                  # snapshot
   claudios -w [seg]         # modo watch, refresca cada N segundos (default 3)
@@ -55,7 +62,7 @@ import textwrap
 import threading
 import time
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 GITHUB_REPO = "rotorrest/claude-monitor"
 
 SESSIONS_DIR = os.path.expanduser("~/.claude/sessions")
@@ -260,6 +267,13 @@ PRICES = (
 USAGE = {"offsets": {}, "events": []}
 SPARK_CH = "▁▂▃▄▅▆▇█"
 
+# Claude cobra el uso en bloques de 5h: el cupo se libera 5h después del
+# primer mensaje del bloque (un hueco >5h abre un bloque nuevo). El tope de
+# tokens del plan no está en ningún archivo local, así que el medidor va
+# contra el bloque más pesado que hayamos visto (marca de agua persistida)
+# salvo que fijes un tope real con la env CLAUDIOS_LIMIT_5H (en tokens).
+LIMIT_HW_FILE = os.path.expanduser("~/.cache/claudios/limit-5h")
+
 
 def price_for(model):
     for key, prices in PRICES:
@@ -353,6 +367,46 @@ def session_names():
     return names
 
 
+def block_start(tstamps):
+    """Inicio del bloque de 5h que contiene la última actividad: un hueco
+    >5h entre eventos —o pasar 5h desde el inicio— abre un bloque nuevo."""
+    start = prev = tstamps[0]
+    for t in tstamps[1:]:
+        if t - prev > USAGE_WINDOW or t - start > USAGE_WINDOW:
+            start = t
+        prev = t
+    return start
+
+
+def limit_budget(block_bill):
+    """Tope de tokens facturables del bloque de 5h y si es aprendido.
+    Prioridad: env CLAUDIOS_LIMIT_5H (tokens) > marca de agua histórica
+    (el bloque más pesado visto, persistida en cache) > el bloque actual."""
+    env = os.environ.get("CLAUDIOS_LIMIT_5H")
+    if env:
+        try:
+            v = int(float(env))
+            if v > 0:
+                return v, False
+        except ValueError:
+            pass
+    hw = 0
+    try:
+        with open(LIMIT_HW_FILE) as fh:
+            hw = int(float(fh.read().strip()))
+    except (OSError, ValueError):
+        hw = 0
+    if block_bill > hw:
+        hw = int(block_bill)
+        try:
+            os.makedirs(os.path.dirname(LIMIT_HW_FILE), exist_ok=True)
+            with open(LIMIT_HW_FILE, "w") as fh:
+                fh.write(str(hw))
+        except OSError:
+            pass
+    return (hw or int(block_bill) or 1), True
+
+
 def usage_summary():
     """Resumen de la ventana: totales, costo API equivalente, burn y top."""
     now = time.time()
@@ -387,10 +441,47 @@ def usage_summary():
     top_rows = [{"name": names.get(sid) or s["proj"][-24:] or sid[:8],
                  "tok": s["tok"], "cost": s["cost"],
                  "pct": s["tok"] / grand * 100} for sid, s in top]
+    # bloque de 5h en curso: cuánto llevas quemado y cuándo se libera el cupo
+    bstart = block_start(sorted(e["ts"] for e in events))
+    block_bill = sum(e["in"] + e["out"] + e["cw"]
+                     for e in events if e["ts"] >= bstart)
+    budget, learned = limit_budget(block_bill)
     return {"in": tot["in"], "out": tot["out"], "cw": tot["cw"],
             "cr": tot["cr"], "total": sum(tot.values()), "cost": cost,
             "burn": burn, "spark": spark, "top": top_rows,
-            "sessions": len(per_sess)}
+            "sessions": len(per_sess),
+            "block_reset": bstart + USAGE_WINDOW, "block_bill": block_bill,
+            "budget": budget, "learned": learned}
+
+
+def limit_line(u, width):
+    """Línea LÍMITE 5h: cuánto falta para que se libere el cupo del bloque,
+    medidor de lo quemado vs el tope, y a qué hora topas al ritmo actual."""
+    budget = u.get("budget")
+    if not budget:
+        return None
+    now = time.time()
+    reset = u.get("block_reset") or now
+    left_s = reset - now
+    bill = u.get("block_bill", 0)
+    pct = min(100.0, bill / budget * 100)
+    when = fmt_age(left_s) if left_s > 0 else "ya"
+    tag = "pico" if u.get("learned") else "tope"
+    left = (f" {BOLD}LÍMITE 5h{RESET} {DIM}reinicia en{RESET} {when}"
+            f"   {meter(pct, 12)} {pct_color(pct)}{pct:.0f}%{RESET}"
+            f" {DIM}vs {tag} {fmt_tok(budget)}{RESET}")
+    burn = u.get("burn") or 0
+    if pct >= 100:
+        proj = f"{RED}● en tu {tag}{RESET} "
+    elif burn > 0:
+        eta = (budget - bill) / burn * 60  # segundos hasta el tope
+        if now + eta < reset:
+            proj = f"{DIM}→{RESET} 100% en ~{fmt_age(eta)} "
+        else:
+            proj = f"{GREEN}✓ aguanta el bloque{RESET} "
+    else:
+        proj = " "
+    return pad_between(left, proj, width)
 
 
 def usage_block(width, detail=False):
@@ -407,8 +498,11 @@ def usage_block(width, detail=False):
              f" {DIM}{u['spark']}{RESET}")
     right2 = (f"{DIM}top:{RESET} {top['name'][:24]} {DIM}{top['pct']:.0f}%{RESET} "
               if top else " ")
-    lines = ["", pad_between(left, right, width),
-             pad_between(left2, right2, width)]
+    lines = ["", pad_between(left, right, width)]
+    lim = limit_line(u, width)
+    if lim:
+        lines.append(lim)
+    lines.append(pad_between(left2, right2, width))
     if detail:
         for t in u["top"]:
             lines.append(

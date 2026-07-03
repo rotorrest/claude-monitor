@@ -67,6 +67,7 @@ The jump knows where each session lives: exact tab in **Terminal/iTerm2** (by tt
 - **Background agents & jobs**: sessions with in-process agents show a live count (`⚙ 3 agentes en background`), sessions with detached daemon jobs show the job's name — and both count as *working* instead of idle, detected via task outputs, transcript activity and the process tree.
 - **System metrics**: CPU, load, RAM + memory pressure, swap, disk, per-container Docker, battery + temperature and thermal throttling (so you know whether your Mac can take one more session).
 - **Token usage & cost (last 5h)**: totals in/out/cache, estimated API-equivalent cost, burn rate with a 10-minute sparkline, and a per-session top (`u` key) — read from your local JSONLs, zero network, prices for the current model lineup built in.
+- **5-hour limit block** (`LÍMITE 5h`): how long until your quota frees up (Claude's block resets 5h after your first message), a meter of what you've burned, and — at the current burn rate — whether you'll hit the cap before it resets. Your plan's real quota isn't in any local file, so 100% is the heaviest block seen so far (a self-calibrating high-water mark); set a real ceiling with `CLAUDIOS_LIMIT_5H` (billable tokens).
 
 ## Notifications
 

@@ -67,6 +67,7 @@ El salto sabe dónde vive cada sesión: pestaña exacta en **Terminal/iTerm2** (
 - **Agentes y jobs en background**: las sesiones con agentes in-process muestran el conteo en vivo (`⚙ 3 agentes en background`), las que tienen jobs tipo daemon muestran el nombre del job — y ambas cuentan como *trabajando*, detectado vía task outputs, actividad del transcript y árbol de procesos.
 - **Métricas del sistema**: CPU, load, RAM + presión de memoria, swap, disco, Docker por contenedor, batería + temperatura y throttling térmico (para saber si tu Mac aguanta una sesión más).
 - **Uso de tokens y costo (últimas 5h)**: totales in/out/cache, costo API equivalente estimado, burn rate con sparkline de 10 minutos, y top por sesión (tecla `u`) — leído de tus JSONL locales, cero red, con los precios del lineup actual de modelos.
+- **Bloque de 5h** (`LÍMITE 5h`): cuánto falta para que se libere tu cupo (el bloque de Claude reinicia 5h después de tu primer mensaje), un medidor de lo quemado y — al ritmo actual — si topas antes de que reinicie. El cupo real de tu plan no está en ningún archivo local, así que el 100% es el bloque más pesado visto (una marca de agua auto-calibrada); fija un tope real con `CLAUDIOS_LIMIT_5H` (tokens facturables).
 
 ## Notificaciones
 
