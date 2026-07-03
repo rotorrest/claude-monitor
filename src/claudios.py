@@ -11,6 +11,11 @@ batería, temperatura de batería y throttling térmico. La temperatura del
 CPU en Apple Silicon requiere sudo (powermetrics), así que se usa la de
 la batería como proxy + el estado de throttling de pmset.
 
+En el pie muestra el uso de tokens de las últimas 5 horas (leído de los
+message.usage de los JSONL locales de ~/.claude/projects — cero red):
+totales in/out/cache, costo API equivalente estimado, burn rate con
+sparkline de los últimos 10 minutos, y top de sesiones con la tecla u.
+
 Uso:
   claudios                  # snapshot
   claudios -w [seg]         # modo watch, refresca cada N segundos (default 3)
@@ -27,9 +32,10 @@ es la única llamada de red que hace la herramienta.
 En modo watch: presiona la tecla de una fila (1-9, a…) para saltar a esa
 sesión — pestaña exacta en Terminal/iTerm2 (por tty), ventana del proyecto
 en Cursor/VS Code/Ghostty/Windsurf (por título) — cruzando Spaces/pantallas;
-d para detalle de Docker; q para salir.
+d para detalle de Docker; u para detalle de uso; q para salir.
 """
 
+import datetime
 import glob
 import json
 import os
@@ -43,7 +49,7 @@ import termios
 import threading
 import time
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 GITHUB_REPO = "rotorrest/claude-monitor"
 
 SESSIONS_DIR = os.path.expanduser("~/.claude/sessions")
@@ -64,7 +70,7 @@ GROUPS = [
     ("busy", GREEN, "TRABAJANDO"),
 ]
 
-KEYS = "123456789abcefghijklmnoprstuvwxyz"  # sin q (salir) ni d (docker)
+KEYS = "123456789abcefghijklmnoprstvwxyz"  # sin q (salir), d (docker) ni u (uso)
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 CTRL_RE = re.compile(r"[\x00-\x08\x0a-\x1f\x7f]")
@@ -219,13 +225,189 @@ def thermal_limit():
     return int(m.group(1)) if m else None
 
 
-SLOW = {"docker": None, "batt": None, "therm": None, "update": None}
+SLOW = {"docker": None, "batt": None, "therm": None, "update": None,
+        "usage": None}
 
 
 def refresh_slow():
     SLOW["batt"] = battery_info()
     SLOW["therm"] = thermal_limit()
     SLOW["docker"] = docker_stats()
+
+
+# ── uso de tokens/costo (últimas 5h, leído de los JSONL locales) ─────────
+# Los transcripts de ~/.claude/projects traen message.usage por turno de
+# assistant. Precios USD por MTok (input, output); cache write = 1.25x
+# input, cache read = 0.1x input. Match por substring del model id.
+USAGE_WINDOW = 5 * 3600
+PRICES = (
+    ("fable", (10.0, 50.0)),
+    ("mythos", (10.0, 50.0)),
+    ("opus-4-1", (15.0, 75.0)),
+    ("opus-4-2025", (15.0, 75.0)),
+    ("opus", (5.0, 25.0)),
+    ("sonnet", (3.0, 15.0)),
+    ("haiku-3", (0.8, 4.0)),
+    ("haiku", (1.0, 5.0)),
+)
+USAGE = {"offsets": {}, "events": []}
+SPARK_CH = "▁▂▃▄▅▆▇█"
+
+
+def price_for(model):
+    for key, prices in PRICES:
+        if key in (model or ""):
+            return prices
+    return (5.0, 25.0)  # desconocido: asumir opus-tier
+
+
+def fmt_tok(n):
+    if n >= 10**9:
+        return f"{n / 10**9:.1f}G"
+    if n >= 10**6:
+        return f"{n / 10**6:.1f}M"
+    if n >= 10**3:
+        return f"{n / 10**3:.0f}K"
+    return f"{n:.0f}"
+
+
+def parse_ts(s):
+    try:
+        return datetime.datetime.fromisoformat(
+            str(s).replace("Z", "+00:00")).timestamp()
+    except (ValueError, TypeError):
+        return None
+
+
+def scan_usage(tail=2 * 2**20):
+    """Acumula eventos de usage de los JSONL con actividad reciente.
+    Lectura incremental por offsets; la primera vez solo el tail del archivo."""
+    now = time.time()
+    cutoff = now - USAGE_WINDOW
+    for path in glob.glob(os.path.join(PROJECTS_DIR, "*", "*.jsonl")):
+        try:
+            st = os.stat(path)
+        except OSError:
+            continue
+        if st.st_mtime < cutoff:
+            USAGE["offsets"].pop(path, None)
+            continue
+        off = USAGE["offsets"].get(path)
+        if off is None:
+            start = max(0, st.st_size - tail)
+        elif st.st_size > off:
+            start = off
+        else:
+            continue
+        try:
+            with open(path, "rb") as fh:
+                fh.seek(start)
+                data = fh.read()
+        except OSError:
+            continue
+        USAGE["offsets"][path] = start + len(data)
+        sid = os.path.basename(path).rsplit(".", 1)[0]
+        proj = os.path.basename(os.path.dirname(path))
+        for line in data.decode("utf-8", "replace").splitlines():
+            if '"usage"' not in line:
+                continue
+            try:
+                d = json.loads(line)
+            except ValueError:
+                continue
+            usage = (d.get("message") or {}).get("usage")
+            if not isinstance(usage, dict):
+                continue
+            ts = parse_ts(d.get("timestamp")) or now
+            if ts < cutoff:
+                continue
+            USAGE["events"].append({
+                "ts": ts,
+                "in": usage.get("input_tokens") or 0,
+                "out": usage.get("output_tokens") or 0,
+                "cw": usage.get("cache_creation_input_tokens") or 0,
+                "cr": usage.get("cache_read_input_tokens") or 0,
+                "model": (d.get("message") or {}).get("model", ""),
+                "sid": sid,
+                "proj": proj,
+            })
+    USAGE["events"] = [e for e in USAGE["events"] if e["ts"] >= now - USAGE_WINDOW]
+
+
+def session_names():
+    names = {}
+    for f in glob.glob(os.path.join(SESSIONS_DIR, "*.json")):
+        try:
+            with open(f) as fh:
+                d = json.load(fh)
+            names[d.get("sessionId", "")] = clean(d.get("name", ""))
+        except (ValueError, OSError):
+            pass
+    return names
+
+
+def usage_summary():
+    """Resumen de la ventana: totales, costo API equivalente, burn y top."""
+    now = time.time()
+    events = USAGE["events"]
+    if not events:
+        return None
+    tot = {"in": 0, "out": 0, "cw": 0, "cr": 0}
+    cost = 0.0
+    per_sess = {}
+    buckets = [0] * 10  # últimos 10 min, 1 min por bucket (sparkline)
+    for e in events:
+        pin, pout = price_for(e["model"])
+        c = (e["in"] * pin + e["out"] * pout
+             + e["cw"] * pin * 1.25 + e["cr"] * pin * 0.1) / 1e6
+        cost += c
+        for k in tot:
+            tot[k] += e[k]
+        s = per_sess.setdefault(
+            e["sid"], {"tok": 0, "cost": 0.0, "proj": e["proj"]})
+        s["tok"] += e["in"] + e["out"] + e["cw"] + e["cr"]
+        s["cost"] += c
+        age_min = (now - e["ts"]) / 60
+        if age_min < 10:
+            buckets[9 - int(age_min)] += e["in"] + e["out"] + e["cw"]
+    burn = sum(buckets) / 10  # tokens facturables/min (cache reads fuera)
+    peak = max(buckets) or 1
+    spark = "".join(SPARK_CH[min(7, int(b / peak * 7))] if b else SPARK_CH[0]
+                    for b in buckets)
+    names = session_names()
+    grand = sum(s["tok"] for s in per_sess.values()) or 1
+    top = sorted(per_sess.items(), key=lambda kv: -kv[1]["tok"])[:5]
+    top_rows = [{"name": names.get(sid) or s["proj"][-24:] or sid[:8],
+                 "tok": s["tok"], "cost": s["cost"],
+                 "pct": s["tok"] / grand * 100} for sid, s in top]
+    return {"in": tot["in"], "out": tot["out"], "cw": tot["cw"],
+            "cr": tot["cr"], "total": sum(tot.values()), "cost": cost,
+            "burn": burn, "spark": spark, "top": top_rows,
+            "sessions": len(per_sess)}
+
+
+def usage_block(width, detail=False):
+    """Líneas del pie con el uso de la ventana de 5h."""
+    u = SLOW.get("usage")
+    if not u:
+        return []
+    left = (f" {BOLD}USO 5h{RESET} {fmt_tok(u['total'])} tokens"
+            f" {DIM}· in {fmt_tok(u['in'])} · out {fmt_tok(u['out'])}"
+            f" · cache w {fmt_tok(u['cw'])} r {fmt_tok(u['cr'])}{RESET}")
+    right = f"~${u['cost']:.2f} {DIM}equiv. API{RESET} "
+    top = u["top"][0] if u["top"] else None
+    left2 = (f" {BOLD}BURN{RESET} {fmt_tok(u['burn'])} tok/min"
+             f" {DIM}{u['spark']}{RESET}")
+    right2 = (f"{DIM}top:{RESET} {top['name'][:24]} {DIM}{top['pct']:.0f}%{RESET} "
+              if top else " ")
+    lines = ["", pad_between(left, right, width),
+             pad_between(left2, right2, width)]
+    if detail:
+        for t in u["top"]:
+            lines.append(
+                f"   {DIM}└{RESET} {t['name'][:32]:<32} {fmt_tok(t['tok']):>7}"
+                f" {DIM}tok{RESET}  ~${t['cost']:.2f}  {DIM}{t['pct']:.0f}%{RESET}")
+    return lines
 
 
 def slow_loop(interval=10):
@@ -236,6 +418,8 @@ def slow_loop(interval=10):
     while True:
         try:
             refresh_slow()
+            scan_usage()
+            SLOW["usage"] = usage_summary()
         except Exception:
             pass
         time.sleep(interval)
@@ -716,7 +900,8 @@ def collect():
     return rows
 
 
-def render(rows, width, height=0, show_keys=False, docker_detail=False):
+def render(rows, width, height=0, show_keys=False, docker_detail=False,
+           usage_detail=False):
     """Arma el frame. Si height > 0, garantiza que quepa: primero quita los
     snippets, y si aún no entra trunca filas con «… +N sesiones más»."""
     ttys = ttys_for([r["pid"] for r in rows])
@@ -800,6 +985,8 @@ def render(rows, width, height=0, show_keys=False, docker_detail=False):
             lines.append(f"{' ' * (1 + key_w)}{DIM}… +{hidden} sesiones más{RESET}")
         lines.append("")
         lines.append(summary_line)
+        if not height or height >= 24:  # en terminales bajitas se omite
+            lines.extend(usage_block(width, usage_detail))
         return lines, keymap
 
     lines, keymap = build(True, 0)
@@ -820,6 +1007,7 @@ def watch_loop(interval):
     fd = sys.stdin.fileno() if is_tty else None
     old_attrs = None
     docker_detail = False
+    usage_detail = False
     threading.Thread(target=slow_loop, daemon=True).start()
     # self-pipe: SIGWINCH (resize) despierta el select → redibujo inmediato
     rpipe, wpipe = os.pipe()
@@ -836,11 +1024,12 @@ def watch_loop(interval):
         while True:
             width, height = term_size()
             out, keymap = render(collect(), width, height=height,
-                                 show_keys=is_tty, docker_detail=docker_detail)
+                                 show_keys=is_tty, docker_detail=docker_detail,
+                                 usage_detail=usage_detail)
             sys.stdout.write("\x1b[2J\x1b[H")
             print(out)
-            hint = ("tecla = ir a esa sesión · d docker · q salir" if is_tty
-                    else "Ctrl+C para salir")
+            hint = ("tecla = ir a esa sesión · d docker · u uso · q salir"
+                    if is_tty else "Ctrl+C para salir")
             # sin newline final: si la última línea hace scroll se pierde el título
             print(f"\n{DIM} refresca cada {interval:g}s · {hint}{RESET}", end="")
             if SLOW["update"]:
@@ -858,6 +1047,9 @@ def watch_loop(interval):
                     break
                 if ch in ("d", "D"):
                     docker_detail = not docker_detail
+                    continue
+                if ch in ("u", "U"):
+                    usage_detail = not usage_detail
                     continue
                 row = keymap.get(ch)
                 if row:
@@ -903,7 +1095,13 @@ def main():
 
     if watch is None:
         refresh_slow()
-        print(render(collect(), term_size()[0], docker_detail=True)[0])
+        try:
+            scan_usage(tail=512 * 1024)  # snapshot: tail corto, que sea rápido
+            SLOW["usage"] = usage_summary()
+        except Exception:
+            pass
+        print(render(collect(), term_size()[0], docker_detail=True,
+                     usage_detail=True)[0])
     else:
         watch_loop(watch)
 

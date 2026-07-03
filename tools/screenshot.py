@@ -83,6 +83,17 @@ DEMO_DOCKER["cpu"] = sum(r["cpu"] for r in DEMO_DOCKER["rows"])
 DEMO_DOCKER["mem"] = sum(r["mem"] for r in DEMO_DOCKER["rows"])
 DEMO_DOCKER["limit"] = 8 * 2**30
 
+DEMO_USAGE = {
+    "in": 182_000, "out": 1_240_000, "cw": 9_800_000, "cr": 212_000_000,
+    "total": 223_222_000, "cost": 301.87, "burn": 195_000,
+    "spark": "▂▃▂▅▇▄▃▆▂▄", "sessions": 8,
+    "top": [
+        {"name": "data-pipeline", "tok": 62_400_000, "cost": 88.10, "pct": 28},
+        {"name": "api-payments", "tok": 41_200_000, "cost": 61.30, "pct": 18},
+        {"name": "webapp-checkout", "tok": 33_800_000, "cost": 44.90, "pct": 15},
+    ],
+}
+
 # ── ANSI → SVG ──────────────────────────────────────────────────────────
 
 
@@ -154,7 +165,7 @@ def frame_lines(m, cols, live):
         m.refresh_slow()
         rows = m.collect()
     else:
-        m.SLOW.update({"docker": DEMO_DOCKER, "therm": None,
+        m.SLOW.update({"docker": DEMO_DOCKER, "therm": None, "usage": DEMO_USAGE,
                        "batt": {"pct": 100, "ac": True, "temp": 30.6}})
         m.ttys_for = lambda pids: DEMO_TTYS
         m.last_assistant_text = (
@@ -162,7 +173,8 @@ def frame_lines(m, cols, live):
             DEMO_SNIPPETS.get(cwd, "")[:max_len])
         m.HOME = "/Users/dev"
         rows = DEMO_ROWS
-    frame, _ = m.render(rows, cols, show_keys=True, docker_detail=True)
+    frame, _ = m.render(rows, cols, show_keys=True, docker_detail=True,
+                        usage_detail=True)
     return frame
 
 
@@ -174,7 +186,7 @@ def main():
     m = SourceFileLoader("claudios", SRC).load_module()
     frame = frame_lines(m, cols, live)
     frame += ("\n\n" + m.DIM
-              + " refresca cada 3s · tecla = ir a esa sesión · d docker · q salir"
+              + " refresca cada 3s · tecla = ir a esa sesión · d docker · u uso · q salir"
               + m.RESET)
     svg = to_svg(frame, cols, "Claudios — claude-monitor")
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)

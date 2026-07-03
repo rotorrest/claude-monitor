@@ -52,6 +52,7 @@ claudios update           # self-update from the latest release (SHA256-verified
 |-----|--------|
 | `1-9`, `a`… | jump to that session, across Spaces/screens |
 | `d` | per-container Docker detail |
+| `u` | token usage & cost detail per session |
 | `q` | quit |
 
 The jump knows where each session lives: exact tab in **Terminal/iTerm2** (by tty), the project window in **Cursor/VS Code/Windsurf** (detects the editor via the process tree and reuses its window with `open -a`). As far as we know, no other monitor jumps into editor-integrated terminals.
@@ -61,6 +62,7 @@ The jump knows where each session lives: exact tab in **Terminal/iTerm2** (by tt
 - **Sessions grouped by attention**: blocked waiting for permission → stopped waiting for your reply (with Claude's last message) → working.
 - **Background agents**: if a session ended its turn but its subagents are still writing to the transcript, it's flagged `⚙ agentes en background activos` instead of showing as stopped.
 - **System metrics**: CPU, load, RAM + memory pressure, swap, disk, per-container Docker, battery + temperature and thermal throttling (so you know whether your Mac can take one more session).
+- **Token usage & cost (last 5h)**: totals in/out/cache, estimated API-equivalent cost, burn rate with a 10-minute sparkline, and a per-session top (`u` key) — read from your local JSONLs, zero network, prices for the current model lineup built in.
 
 ## Notifications
 
@@ -123,7 +125,7 @@ Ideas mapped from the best tools in the ecosystem — credit where due:
 - [x] Jumping into editor-integrated terminals (Cursor/VS Code/Windsurf) across Spaces
 - [ ] Notification polish: debounce, turn duration, suppress when you're already looking at that tab ([claude-ghostty-notify](https://github.com/thejustinwalsh/claude-ghostty-notify), [CCNotify](https://github.com/dazuiba/CCNotify))
 - [ ] Ghostty tty-based jumping (today only a title-based fallback on the current Space) ([claude-code-monitor](https://github.com/onikan27/claude-code-monitor))
-- [ ] Per-session tokens/cost + burn rate from the JSONLs ([ccusage](https://github.com/ryoppippi/ccusage))
+- [x] Per-session tokens/cost + burn rate from the JSONLs (inspired by [ccusage](https://github.com/ryoppippi/ccusage) and [Claude-Code-Usage-Monitor](https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor))
 - [ ] Remaining-context % per session ([claude-tui](https://github.com/slima4/claude-tui))
 - [ ] Per-session CPU/RAM via process tree ([claude-dashboard](https://github.com/seunggabi/claude-dashboard))
 - [ ] Auto-compact layout on narrow terminals (ccusage)
