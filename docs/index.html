@@ -3,84 +3,261 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>claude-monitor — see every Claude Code session at a glance (macOS TUI)</title>
+<title>claudios · claude-monitor — see every Claude Code session at a glance (macOS TUI)</title>
 <meta name="description" content="Free open-source TUI monitor for parallel Claude Code sessions on macOS. See who's working, who's blocked waiting for you, and jump to its terminal tab — Terminal, iTerm2, Cursor, VS Code. Zero dependencies.">
 <link rel="canonical" href="https://rotorrest.github.io/claude-monitor/">
-<meta property="og:title" content="claude-monitor · Claudios">
+<meta property="og:title" content="claudios · claude-monitor">
 <meta property="og:description" content="See every Claude Code session at a glance — who's working, who's blocked waiting for you — and jump to its terminal with one key.">
 <meta property="og:image" content="https://raw.githubusercontent.com/rotorrest/claude-monitor/main/docs/social-preview.png">
 <meta property="og:url" content="https://rotorrest.github.io/claude-monitor/">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📟</text></svg>">
 <style>
+  :root {
+    --void: #0a0604;
+    --phos: #ffb000;
+    --phos-dim: #9a6d1c;
+    --phos-faint: #574012;
+    --paper: #ffe9c4;
+    --coral: #ff6b4a;
+    --mint: #3dffa0;
+    --glow: 0 0 6px rgba(255, 176, 0, .35);
+  }
   * { margin: 0; box-sizing: border-box; }
-  body { background: #0d1117; color: #c9d1d9; font-family: -apple-system, "Segoe UI", sans-serif;
-         line-height: 1.55; }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 56px 24px 80px; }
-  h1 { font-family: "SF Mono", Menlo, Consolas, monospace; color: #e6edf3;
-       font-size: clamp(30px, 6vw, 52px); letter-spacing: -1px; }
-  h1 .dim { color: #8b949e; font-weight: 400; }
-  .tag { color: #8b949e; font-size: clamp(16px, 2.6vw, 21px); margin-top: 12px; max-width: 640px; }
-  .chips { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
-  .chip { border: 1px solid #30363d; border-radius: 999px; padding: 6px 14px; font-size: 14px;
-          font-family: "SF Mono", Menlo, monospace; color: #7ee787; }
-  .chip.y { color: #e3b341; } .chip.r { color: #ff7b72; }
-  pre { background: #161b22; border: 1px solid #30363d; border-radius: 10px;
-        padding: 14px 18px; overflow-x: auto; margin-top: 28px;
-        font-family: "SF Mono", Menlo, monospace; font-size: 14.5px; color: #e6edf3; }
-  pre .c { color: #8b949e; }
-  .shot { width: 100%; margin-top: 40px; border-radius: 12px;
-          box-shadow: 0 24px 80px rgba(0,0,0,.55); display: block; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-          gap: 16px; margin-top: 44px; }
-  .card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 18px; }
-  .card h3 { color: #e6edf3; font-size: 16px; margin-bottom: 6px; }
-  .card p { color: #8b949e; font-size: 14.5px; }
-  a { color: #58a6ff; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .cta { margin-top: 44px; font-size: 16px; }
-  footer { margin-top: 56px; color: #484f58; font-size: 13.5px; }
+  html { background: #000; }
+  body {
+    background: radial-gradient(ellipse 120% 90% at 50% 8%, #170f06 0%, var(--void) 55%, #000 100%);
+    color: var(--phos);
+    font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    font-size: 15px; line-height: 1.6;
+    min-height: 100vh;
+    text-shadow: var(--glow);
+  }
+  /* CRT: scanlines + vignette, one fixed overlay */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 9;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 1px, transparent 1px 3px),
+      radial-gradient(ellipse 95% 90% at 50% 50%, transparent 60%, rgba(0,0,0,.5) 100%);
+  }
+  .wrap { max-width: 88ch; margin: 0 auto; padding: 48px 20px 64px; }
+
+  a { color: var(--paper); text-underline-offset: 3px; }
+  a:hover { color: #fff; }
+  :focus-visible { outline: 2px solid var(--phos); outline-offset: 3px; }
+
+  /* boot overlay (signature) */
+  #boot {
+    position: fixed; inset: 0; z-index: 20; background: #000;
+    padding: 48px max(20px, calc(50vw - 44ch));
+    font-size: 15px; color: var(--phos); cursor: pointer;
+  }
+  #boot .ok { color: var(--mint); }
+  #boot .skip { position: fixed; bottom: 18px; right: 22px; color: var(--phos-dim); font-size: 12.5px; }
+  .cursor { display: inline-block; width: .62em; height: 1.15em;
+            background: var(--phos); vertical-align: text-bottom;
+            animation: blink 1.06s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* banner */
+  .banner { color: var(--paper); text-shadow: 0 0 14px rgba(255, 200, 80, .5), var(--glow);
+            font-size: min(1.95vw, 13px); line-height: 1.25; overflow: hidden; user-select: none; }
+  .tagline { margin-top: 18px; max-width: 62ch; color: var(--phos); }
+  .tagline b { color: var(--paper); font-weight: 600; }
+
+  /* status strip — the tool's three states, live */
+  .strip { margin-top: 22px; display: flex; gap: 26px; flex-wrap: wrap; font-size: 14px; }
+  .dot { display: inline-block; width: .65em; height: .65em; border-radius: 50%; margin-right: 8px; }
+  .s-wait  { color: var(--coral); }  .s-wait .dot  { background: var(--coral);
+             box-shadow: 0 0 8px var(--coral); animation: pulse 1.3s ease-in-out infinite; }
+  .s-idle  { color: var(--phos); }   .s-idle .dot  { background: var(--phos); }
+  .s-busy  { color: var(--mint); }   .s-busy .dot  { background: var(--mint); }
+  @keyframes pulse { 50% { opacity: .25; } }
+
+  /* install block */
+  .install { margin-top: 34px; border: 1px solid var(--phos-faint); border-radius: 4px;
+             background: rgba(255, 176, 0, .045); padding: 16px 18px; position: relative; }
+  .install .ln { display: block; white-space: pre; overflow-x: auto; padding-right: 76px; }
+  .install .p { color: var(--phos-dim); user-select: none; }
+  .install .cmt { color: var(--phos-dim); }
+  #copy { position: absolute; top: 12px; right: 12px; font: inherit; font-size: 12.5px;
+          background: var(--phos); color: #140b00; border: 0; border-radius: 3px;
+          padding: 4px 10px; cursor: pointer; text-shadow: none; }
+  #copy:hover { background: var(--paper); }
+
+  /* section headers: reverse-video, like a selected TUI row */
+  h2 { margin: 56px 0 14px; font-size: 14px; font-weight: 700; letter-spacing: .18em;
+       display: inline-block; background: var(--phos); color: #140b00;
+       padding: 3px 12px; text-shadow: none; }
+  .man { color: var(--phos); }
+  .man dt { color: var(--paper); margin-top: 14px; }
+  .man dd { margin-left: 4ch; color: var(--phos); }
+  .man dd .dim { color: var(--phos-dim); }
+  .man code, .kbd { color: var(--paper); }
+  ul.desc { list-style: none; padding-left: 0; }
+  ul.desc li { padding-left: 4ch; text-indent: -4ch; margin-top: 12px; }
+  ul.desc li::before { content: "·  "; color: var(--phos-dim); }
+  ul.desc b { color: var(--paper); font-weight: 600; }
+
+  /* the shot: modern mac window on a CRT desk — the joke is the contrast */
+  .shot-frame { margin-top: 20px; padding: 14px; border: 1px solid var(--phos-faint);
+                border-radius: 6px; background: rgba(0,0,0,.5); }
+  .shot-frame img { width: 100%; display: block; border-radius: 8px; }
+  .shot-cap { margin-top: 10px; font-size: 12.5px; color: var(--phos-dim); text-align: right; }
+
+  table.seealso { border-collapse: collapse; margin-top: 6px; width: 100%; }
+  table.seealso td { padding: 6px 18px 6px 0; vertical-align: top; }
+  table.seealso td:first-child { white-space: nowrap; color: var(--paper); }
+  table.seealso td:last-child { color: var(--phos); }
+
+  .cta { margin-top: 60px; text-align: center; }
+  .cta a.star { display: inline-block; background: var(--phos); color: #140b00; text-shadow: none;
+                padding: 10px 26px; border-radius: 3px; text-decoration: none; font-weight: 700; }
+  .cta a.star:hover { background: var(--paper); color: #000; }
+  .cta .alt { margin-top: 14px; font-size: 13px; color: var(--phos-dim); }
+  .cta .alt a { color: var(--phos); }
+
+  footer { margin-top: 56px; padding-top: 18px; border-top: 1px dashed var(--phos-faint);
+           color: var(--phos-dim); font-size: 12.5px; display: flex; gap: 8px;
+           justify-content: space-between; flex-wrap: wrap; }
+
+  @media (max-width: 640px) {
+    body { font-size: 14px; }
+    .banner { font-size: 1.9vw; }
+    .install .ln { padding-right: 0; }
+    #copy { position: static; margin-top: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cursor, .s-wait .dot { animation: none; }
+    #boot { display: none !important; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>claude-monitor <span class="dim">· Claudios</span></h1>
-  <p class="tag">See every Claude Code session at a glance — who's working, who's blocked
-     waiting for you — and jump to its terminal with one key. A zero-dependency TUI for macOS.</p>
-  <div class="chips">
-    <span class="chip">0 dependencies</span>
-    <span class="chip y">self-updating</span>
-    <span class="chip r">macOS</span>
-    <span class="chip">MIT</span>
-  </div>
 
-  <pre><span class="c"># Homebrew</span>
-brew install rotorrest/tap/claude-monitor
-
-<span class="c"># or the installer (SHA256-verified)</span>
-curl -fsSL https://raw.githubusercontent.com/rotorrest/claude-monitor/main/install.sh | bash</pre>
-
-  <img class="shot" src="demo.svg" alt="claude-monitor TUI showing Claude Code sessions grouped by attention: blocked, waiting for reply, and working — with system metrics and Docker containers">
-
-  <div class="grid">
-    <div class="card"><h3>Sorted by attention</h3>
-      <p>Blocked sessions first, then stopped ones — with Claude's last message so you know where it left off — then the ones still working.</p></div>
-    <div class="card"><h3>One-key jump, across Spaces</h3>
-      <p>Exact tab in Terminal/iTerm2 by tty; project window in Cursor, VS Code or Windsurf via the process tree. No other monitor jumps into editor terminals.</p></div>
-    <div class="card"><h3>Click-to-focus notifications</h3>
-      <p><code>claude-notify</code> turns Claude Code hooks into native macOS notifications — click one and land in that session's tab.</p></div>
-    <div class="card"><h3>Background-agent aware</h3>
-      <p>A session whose subagents are still writing shows as working, not idle. No more "wait, it wasn't done?"</p></div>
-    <div class="card"><h3>System headroom</h3>
-      <p>CPU, RAM pressure, swap, disk, per-container Docker, battery temp and thermal throttling — can your Mac take one more session?</p></div>
-    <div class="card"><h3>Local &amp; auditable</h3>
-      <p>Pure Python stdlib. No telemetry. The only network call is a daily version check you can turn off. CI: bandit + CodeQL + stdlib guard.</p></div>
-  </div>
-
-  <p class="cta">⭐ <a href="https://github.com/rotorrest/claude-monitor">Star it on GitHub</a> ·
-     <a href="https://github.com/rotorrest/claude-monitor/releases/latest">latest release</a> ·
-     <a href="https://github.com/rotorrest/claude-monitor/blob/main/README.es.md">🇪🇸 léelo en español</a></p>
-
-  <footer>MIT · built for people who run too many Claudes at once</footer>
+<div id="boot" role="presentation" aria-hidden="true">
+  <div id="bootlog"></div>
+  <span class="skip">any key to skip</span>
 </div>
+
+<div class="wrap">
+  <pre class="banner" role="img" aria-label="CLAUDIOS">
+ ██████╗██╗      █████╗ ██╗   ██╗██████╗ ██╗ ██████╗ ███████╗
+██╔════╝██║     ██╔══██╗██║   ██║██╔══██╗██║██╔═══██╗██╔════╝
+██║     ██║     ███████║██║   ██║██║  ██║██║██║   ██║███████╗
+██║     ██║     ██╔══██║██║   ██║██║  ██║██║██║   ██║╚════██║
+╚██████╗███████╗██║  ██║╚██████╔╝██████╔╝██║╚██████╔╝███████║
+ ╚═════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝ ╚═════╝ ╚══════╝</pre>
+
+  <p class="tagline">You run too many Claude Code sessions. <b>claudios</b> watches all of them
+  and answers the only question that matters: <b>who needs you right now?</b>
+  Press a key, land in that terminal.<span class="cursor" aria-hidden="true"></span></p>
+
+  <div class="strip" aria-label="session states">
+    <span class="s-wait"><span class="dot"></span>1 waiting on you</span>
+    <span class="s-idle"><span class="dot"></span>4 stopped</span>
+    <span class="s-busy"><span class="dot"></span>3 working</span>
+  </div>
+
+  <div class="install">
+    <span class="ln"><span class="p">$</span> <span id="cmd">brew install rotorrest/tap/claude-monitor</span></span>
+    <span class="ln"><span class="p">$</span> claude-monitor</span>
+    <span class="ln cmt"># no brew? → curl -fsSL https://raw.githubusercontent.com/rotorrest/claude-monitor/main/install.sh | bash</span>
+    <button id="copy" type="button">copy</button>
+  </div>
+
+  <h2>SCREENSHOT</h2>
+  <div class="shot-frame">
+    <img src="demo.svg" alt="claudios TUI: Claude Code sessions grouped by attention — blocked, waiting for reply, working — with system metrics and Docker containers" loading="lazy">
+    <p class="shot-cap">your 2026 sessions, monitored with 1985 conviction</p>
+  </div>
+
+  <h2>SYNOPSIS</h2>
+  <dl class="man">
+    <dt>claudios <span class="dim">[-w sec]</span></dt><dd>snapshot, or watch mode refreshing every few seconds</dd>
+    <dt>claudios focus <span class="dim">&lt;id&gt;</span></dt><dd>jump to that session's tab — Terminal/iTerm2 by tty, Cursor/VS Code/Windsurf by project window, across Spaces</dd>
+    <dt>claudios --json</dt><dd>machine-readable state for statuslines and scripts</dd>
+    <dt>claudios update</dt><dd>self-update from the latest release, every file SHA256-verified</dd>
+  </dl>
+
+  <h2>DESCRIPTION</h2>
+  <ul class="desc">
+    <li><b>Sorted by attention.</b> Blocked sessions first, then stopped ones — with Claude's last message so you know where it left off — then everything still working.</li>
+    <li><b>Background-agent aware.</b> A session whose subagents are still writing shows as working, not idle. No more "wait, it wasn't done?"</li>
+    <li><b>Click-to-focus notifications.</b> <code>claude-notify</code> turns Claude Code hooks into native macOS notifications; click one, land in that tab.</li>
+    <li><b>System headroom.</b> CPU, RAM pressure, swap, per-container Docker, battery temperature, thermal throttling — can this Mac take one more session?</li>
+  </ul>
+
+  <h2>FILES</h2>
+  <dl class="man">
+    <dt>~/.claude/sessions/</dt><dd>session state written by Claude Code — the single source of truth</dd>
+    <dt>~/.local/bin/claudios</dt><dd>one Python file, stdlib only <span class="dim">(aliases: claude-monitor, claudes)</span></dd>
+  </dl>
+
+  <h2>SECURITY</h2>
+  <p class="man">Everything is read locally. No telemetry, no accounts, no dependencies to audit — CI enforces
+  stdlib-only imports and every release passes <code>bandit</code> + CodeQL before publishing. The one network
+  call is a daily version check <span class="dim">(CLAUDIOS_NO_UPDATE_CHECK=1 turns it off)</span>.</p>
+
+  <h2>SEE ALSO</h2>
+  <table class="seealso">
+    <tr><td><a href="https://github.com/ryoppippi/ccusage">ccusage(1)</a></td><td>costs and tokens from your local JSONLs</td></tr>
+    <tr><td><a href="https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor">usage-monitor(1)</a></td><td>plan limits, burn rate, prediction</td></tr>
+    <tr><td><a href="https://github.com/smtg-ai/claude-squad">claude-squad(1)</a></td><td>agents in tmux + git worktrees</td></tr>
+  </table>
+
+  <div class="cta">
+    <a class="star" href="https://github.com/rotorrest/claude-monitor">★ star it on GitHub</a>
+    <p class="alt"><a href="https://github.com/rotorrest/claude-monitor/releases/latest">latest release</a>
+    · <a href="https://github.com/rotorrest/claude-monitor/blob/main/README.es.md">🇪🇸 léelo en español</a></p>
+  </div>
+
+  <footer>
+    <span>MIT · zero deps · no telemetry</span>
+    <span>best viewed at 80×25 · made for people who run too many Claudes</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var boot = document.getElementById("boot");
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced || sessionStorage.getItem("booted")) { boot.remove(); return; }
+  sessionStorage.setItem("booted", "1");
+  var lines = [
+    "CLAUDIOS BIOS v0.2.0 — phosphor ........ <span class='ok'>ok</span>",
+    "mounting ~/.claude/sessions ............ <span class='ok'>ok</span>",
+    "scanning Terminal iTerm2 Cursor Code ... <span class='ok'>ok</span>",
+    "8 sessions found · <span style='color:var(--coral)'>1 waiting on you</span>",
+    "starting claude-monitor…"
+  ];
+  var log = document.getElementById("bootlog"), i = 0, done = false;
+  function finish() {
+    if (done) return; done = true;
+    boot.style.transition = "opacity .35s"; boot.style.opacity = "0";
+    setTimeout(function () { boot.remove(); }, 380);
+  }
+  function next() {
+    if (done) return;
+    if (i < lines.length) {
+      var d = document.createElement("div");
+      d.innerHTML = lines[i++];
+      log.appendChild(d);
+      setTimeout(next, i === lines.length ? 500 : 260);
+    } else { finish(); }
+  }
+  boot.addEventListener("click", finish);
+  addEventListener("keydown", finish, { once: true });
+  setTimeout(next, 240);
+  setTimeout(finish, 4500); /* red de seguridad */
+})();
+
+document.getElementById("copy").addEventListener("click", function () {
+  var b = this;
+  navigator.clipboard.writeText(document.getElementById("cmd").textContent).then(function () {
+    b.textContent = "copied"; setTimeout(function () { b.textContent = "copy"; }, 1400);
+  });
+});
+</script>
 </body>
 </html>
