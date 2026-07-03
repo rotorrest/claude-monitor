@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="812" height="714" viewBox="0 0 812 714" font-family="'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace" font-size="13">
+<rect width="812" height="714" rx="12" fill="#0d1117"/>
+<path d="M0 12a12 12 0 0 1 12-12h788a12 12 0 0 1 12 12v24h-812z" fill="#161b22"/>
+<circle cx="22" cy="18" r="6" fill="#ff5f57"/>
+<circle cx="42" cy="18" r="6" fill="#febc2e"/>
+<circle cx="62" cy="18" r="6" fill="#28c840"/>
+<text x="406" y="22" text-anchor="middle" fill="#8b949e">Claudios — claude-monitor</text>
+<text x="24" y="65" fill="#c9d1d9" font-weight="600" textLength="109" lengthAdjust="spacingAndGlyphs" xml:space="preserve">CLAUDE MONITOR</text>
+<text x="133" y="65" fill="#c9d1d9" opacity="0.55" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> · 8 sesiones</text>
+<text x="710" y="65" fill="#c9d1d9" opacity="0.55" textLength="62" lengthAdjust="spacingAndGlyphs" xml:space="preserve">23:50:52</text>
+<text x="16" y="84" fill="#c9d1d9" opacity="0.55" textLength="780" lengthAdjust="spacingAndGlyphs" xml:space="preserve">────────────────────────────────────────────────────────────────────────────────────────────────────</text>
+<text x="24" y="103" fill="#c9d1d9" font-weight="600" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">CPU</text>
+<text x="55" y="103" fill="#7ee787" textLength="31" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 10%</text>
+<text x="94" y="103" fill="#7ee787" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">█</text>
+<text x="102" y="103" fill="#c9d1d9" opacity="0.55" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">░░░░░░░░░</text>
+<text x="180" y="103" fill="#c9d1d9" opacity="0.55" textLength="86" lengthAdjust="spacingAndGlyphs" xml:space="preserve">load 3.7/18</text>
+<text x="468" y="103" fill="#c9d1d9" font-weight="600" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">RAM</text>
+<text x="500" y="103" fill="#e3b341" textLength="39" lengthAdjust="spacingAndGlyphs" xml:space="preserve">31.4G</text>
+<text x="539" y="103" fill="#c9d1d9" opacity="0.55" textLength="47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">/48.0G</text>
+<text x="593" y="103" fill="#e3b341" textLength="55" lengthAdjust="spacingAndGlyphs" xml:space="preserve">███████</text>
+<text x="648" y="103" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">░░░</text>
+<text x="671" y="103" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> presión </text>
+<text x="741" y="103" fill="#7ee787" textLength="47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">normal</text>
+<text x="24" y="122" fill="#c9d1d9" font-weight="600" textLength="47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">DOCKER</text>
+<text x="71" y="122" fill="#c9d1d9" textLength="195" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 4 cont · cpu 1.6% · ram </text>
+<text x="266" y="122" fill="#7ee787" textLength="31" lengthAdjust="spacingAndGlyphs" xml:space="preserve">445M</text>
+<text x="297" y="122" fill="#c9d1d9" opacity="0.55" textLength="39" lengthAdjust="spacingAndGlyphs" xml:space="preserve">/8.0G</text>
+<text x="375" y="122" fill="#c9d1d9" font-weight="600" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">BAT</text>
+<text x="398" y="122" fill="#c9d1d9" textLength="47" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 100% </text>
+<text x="445" y="122" fill="#c9d1d9" opacity="0.55" textLength="16" lengthAdjust="spacingAndGlyphs" xml:space="preserve">AC</text>
+<text x="461" y="122" fill="#c9d1d9" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> · </text>
+<text x="484" y="122" fill="#7ee787" textLength="47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">30.6°C</text>
+<text x="539" y="122" fill="#c9d1d9" opacity="0.55" textLength="109" lengthAdjust="spacingAndGlyphs" xml:space="preserve">· sin throttle</text>
+<text x="671" y="122" fill="#c9d1d9" font-weight="600" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">SSD</text>
+<text x="695" y="122" fill="#c9d1d9" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 726G libres </text>
+<text x="39" y="141" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└</text>
+<text x="47" y="141" fill="#c9d1d9" textLength="265" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> postgres-local                   </text>
+<text x="312" y="141" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">cpu</text>
+<text x="336" y="141" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">   0.3%  </text>
+<text x="406" y="141" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">ram</text>
+<text x="429" y="141" fill="#c9d1d9" textLength="39" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 210M</text>
+<text x="39" y="160" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└</text>
+<text x="47" y="160" fill="#c9d1d9" textLength="265" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> webapp-dev                       </text>
+<text x="312" y="160" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">cpu</text>
+<text x="336" y="160" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">   1.2%  </text>
+<text x="406" y="160" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">ram</text>
+<text x="429" y="160" fill="#c9d1d9" textLength="39" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 182M</text>
+<text x="39" y="179" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└</text>
+<text x="47" y="179" fill="#c9d1d9" textLength="265" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> mailhog                          </text>
+<text x="312" y="179" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">cpu</text>
+<text x="336" y="179" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">   0.0%  </text>
+<text x="406" y="179" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">ram</text>
+<text x="429" y="179" fill="#c9d1d9" textLength="31" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 41M</text>
+<text x="39" y="198" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└</text>
+<text x="47" y="198" fill="#c9d1d9" textLength="265" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> redis-cache                      </text>
+<text x="312" y="198" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">cpu</text>
+<text x="336" y="198" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">   0.1%  </text>
+<text x="406" y="198" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">ram</text>
+<text x="429" y="198" fill="#c9d1d9" textLength="31" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 12M</text>
+<text x="16" y="217" fill="#c9d1d9" opacity="0.55" textLength="780" lengthAdjust="spacingAndGlyphs" xml:space="preserve">────────────────────────────────────────────────────────────────────────────────────────────────────</text>
+<text x="47" y="255" fill="#ff7b72" font-weight="600" textLength="140" lengthAdjust="spacingAndGlyphs" xml:space="preserve">▍ESPERAN TU ACCIÓN</text>
+<text x="195" y="255" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">(1)</text>
+<text x="24" y="274" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">1</text>
+<text x="39" y="274" fill="#ff7b72" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">●</text>
+<text x="47" y="274" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">     4m  </text>
+<text x="117" y="274" fill="#c9d1d9" font-weight="600" textLength="148" lengthAdjust="spacingAndGlyphs" xml:space="preserve">api-payments       </text>
+<text x="266" y="274" fill="#c9d1d9" textLength="421" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~/work/api-payments                                 </text>
+<text x="687" y="274" fill="#c9d1d9" opacity="0.55" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve">s003 · 41231 </text>
+<text x="133" y="293" fill="#ff7b72" textLength="312" lengthAdjust="spacingAndGlyphs" xml:space="preserve">⏸ esperando: permiso para Bash(git push)</text>
+<text x="133" y="312" fill="#c9d1d9" opacity="0.55" textLength="655" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└ Los 3 tests de reembolsos pasan. Necesito tu ok para pushear el fix — toca el fluj</text>
+<text x="47" y="350" fill="#e3b341" font-weight="600" textLength="242" lengthAdjust="spacingAndGlyphs" xml:space="preserve">▍PARADAS · esperan tu respuesta</text>
+<text x="297" y="350" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">(4)</text>
+<text x="24" y="369" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">2</text>
+<text x="39" y="369" fill="#e3b341" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">●</text>
+<text x="47" y="369" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  2h07m  </text>
+<text x="117" y="369" fill="#c9d1d9" font-weight="600" textLength="148" lengthAdjust="spacingAndGlyphs" xml:space="preserve">infra-terraform    </text>
+<text x="266" y="369" fill="#c9d1d9" textLength="421" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~/work/infra-terraform                              </text>
+<text x="687" y="369" fill="#c9d1d9" opacity="0.55" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve">s007 · 38112 </text>
+<text x="133" y="388" fill="#c9d1d9" opacity="0.55" textLength="655" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└ Plan aplicado en staging: 12 recursos. Prod requiere tu aprobación manual del plan</text>
+<text x="24" y="407" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">3</text>
+<text x="39" y="407" fill="#e3b341" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">●</text>
+<text x="47" y="407" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">    45m  </text>
+<text x="117" y="407" fill="#c9d1d9" font-weight="600" textLength="148" lengthAdjust="spacingAndGlyphs" xml:space="preserve">webapp-checkout    </text>
+<text x="266" y="407" fill="#c9d1d9" textLength="421" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~/work/webapp-checkout                              </text>
+<text x="687" y="407" fill="#c9d1d9" opacity="0.55" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve">s012 · 44903 </text>
+<text x="133" y="426" fill="#c9d1d9" opacity="0.55" textLength="655" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└ Migré el carrito a server actions y los e2e pasan. Pendiente decidir si cacheamos </text>
+<text x="24" y="445" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">4</text>
+<text x="39" y="445" fill="#e3b341" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">●</text>
+<text x="47" y="445" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">    12m  </text>
+<text x="117" y="445" fill="#c9d1d9" font-weight="600" textLength="148" lengthAdjust="spacingAndGlyphs" xml:space="preserve">blog-engine        </text>
+<text x="266" y="445" fill="#c9d1d9" textLength="421" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~/personal/blog-engine                              </text>
+<text x="687" y="445" fill="#c9d1d9" opacity="0.55" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve">s001 · 45120 </text>
+<text x="133" y="464" fill="#c9d1d9" opacity="0.55" textLength="640" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└ Listo el post sobre el release. ¿Lo publico o quieres revisar el borrador antes?</text>
+<text x="24" y="483" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">5</text>
+<text x="39" y="483" fill="#e3b341" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">●</text>
+<text x="47" y="483" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">     3m  </text>
+<text x="117" y="483" fill="#c9d1d9" font-weight="600" textLength="148" lengthAdjust="spacingAndGlyphs" xml:space="preserve">scraper-openlibrary</text>
+<text x="266" y="483" fill="#c9d1d9" textLength="421" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~/personal/scraper-openlibrary                      </text>
+<text x="687" y="483" fill="#c9d1d9" opacity="0.55" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve">s019 · 46011 </text>
+<text x="133" y="502" fill="#c9d1d9" opacity="0.55" textLength="655" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└ El rate-limit era el problema: con backoff exponencial ya no se cae. Quedó corrien</text>
+<text x="47" y="540" fill="#7ee787" font-weight="600" textLength="86" lengthAdjust="spacingAndGlyphs" xml:space="preserve">▍TRABAJANDO</text>
+<text x="141" y="540" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">(3)</text>
+<text x="24" y="559" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">6</text>
+<text x="39" y="559" fill="#7ee787" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">●</text>
+<text x="47" y="559" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">    31m  </text>
+<text x="117" y="559" fill="#c9d1d9" font-weight="600" textLength="148" lengthAdjust="spacingAndGlyphs" xml:space="preserve">data-pipeline      </text>
+<text x="266" y="559" fill="#c9d1d9" textLength="421" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~/work/data-pipeline                                </text>
+<text x="687" y="559" fill="#c9d1d9" opacity="0.55" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve">s005 · 39557 </text>
+<text x="133" y="578" fill="#7ee787" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">⚙</text>
+<text x="149" y="578" fill="#c9d1d9" opacity="0.55" textLength="226" lengthAdjust="spacingAndGlyphs" xml:space="preserve">agentes en background activos</text>
+<text x="24" y="597" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">7</text>
+<text x="39" y="597" fill="#7ee787" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">●</text>
+<text x="47" y="597" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">    19m  </text>
+<text x="117" y="597" fill="#c9d1d9" font-weight="600" textLength="148" lengthAdjust="spacingAndGlyphs" xml:space="preserve">mobile-app         </text>
+<text x="266" y="597" fill="#c9d1d9" textLength="421" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~/work/mobile-app                                   </text>
+<text x="687" y="597" fill="#c9d1d9" opacity="0.55" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve">s009 · 47332 </text>
+<text x="24" y="616" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">8</text>
+<text x="39" y="616" fill="#7ee787" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">●</text>
+<text x="47" y="616" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">     1m  </text>
+<text x="117" y="616" fill="#c9d1d9" font-weight="600" textLength="148" lengthAdjust="spacingAndGlyphs" xml:space="preserve">docs-site          </text>
+<text x="266" y="616" fill="#c9d1d9" textLength="421" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~/work/docs-site                                    </text>
+<text x="687" y="616" fill="#c9d1d9" opacity="0.55" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve">s014 · 48208 </text>
+<text x="24" y="654" fill="#ff7b72" font-weight="600" textLength="148" lengthAdjust="spacingAndGlyphs" xml:space="preserve">1 esperan tu acción</text>
+<text x="172" y="654" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> · </text>
+<text x="195" y="654" fill="#e3b341" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">4 paradas</text>
+<text x="266" y="654" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> · </text>
+<text x="289" y="654" fill="#7ee787" textLength="94" lengthAdjust="spacingAndGlyphs" xml:space="preserve">3 trabajando</text>
+<text x="16" y="692" fill="#c9d1d9" opacity="0.55" textLength="499" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> refresca cada 3s · tecla = ir a esa sesión · d docker · q salir</text>
+</svg>
