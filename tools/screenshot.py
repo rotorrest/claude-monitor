@@ -173,8 +173,9 @@ def frame_lines(m, cols, live):
             DEMO_SNIPPETS.get(cwd, "")[:max_len])
         m.HOME = "/Users/dev"
         rows = DEMO_ROWS
+    selected = None if live else DEMO_ROWS[0]["pid"]
     frame, _ = m.render(rows, cols, show_keys=True, docker_detail=True,
-                        usage_detail=True)
+                        usage_detail=True, selected_pid=selected)
     return frame
 
 
@@ -186,7 +187,7 @@ def main():
     m = SourceFileLoader("claudios", SRC).load_module()
     frame = frame_lines(m, cols, live)
     frame += ("\n\n" + m.DIM
-              + " refresca cada 3s · tecla = ir a esa sesión · d docker · u uso · q salir"
+              + " refresca cada 3s · ↑↓ mover · Enter ir · tecla directa · d docker · u uso · q salir"
               + m.RESET)
     svg = to_svg(frame, cols, "Claudios — claude-monitor")
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)

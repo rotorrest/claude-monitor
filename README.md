@@ -50,7 +50,9 @@ claudios update           # self-update from the latest release (SHA256-verified
 
 | Key | Action |
 |-----|--------|
-| `1-9`, `a`… | jump to that session, across Spaces/screens |
+| `↑`/`↓` or `j`/`k` | move the selection cursor between sessions |
+| `Enter` | jump to the selected session, across Spaces/screens |
+| `1-9`, `a`… | jump straight to that row (quick keys) |
 | `d` | per-container Docker detail |
 | `u` | token usage & cost detail per session |
 | `q` | quit |

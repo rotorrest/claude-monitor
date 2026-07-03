@@ -50,7 +50,9 @@ claudios update           # auto-update desde el último release (verifica SHA25
 
 | Tecla | Acción |
 |-------|--------|
-| `1-9`, `a`… | saltar a esa sesión, cruzando Spaces/pantallas |
+| `↑`/`↓` o `j`/`k` | mover el cursor de selección entre sesiones |
+| `Enter` | saltar a la sesión seleccionada, cruzando Spaces/pantallas |
+| `1-9`, `a`… | saltar directo a esa fila (teclas rápidas) |
 | `d` | detalle de Docker por contenedor |
 | `u` | detalle de uso de tokens y costo por sesión |
 | `q` | salir |

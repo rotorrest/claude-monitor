@@ -29,9 +29,10 @@ En modo watch revisa (máx. 1 vez al día) si hay versión nueva en GitHub y
 lo avisa en el pie de pantalla. Exportar CLAUDIOS_NO_UPDATE_CHECK=1 lo apaga;
 es la única llamada de red que hace la herramienta.
 
-En modo watch: presiona la tecla de una fila (1-9, a…) para saltar a esa
-sesión — pestaña exacta en Terminal/iTerm2 (por tty), ventana del proyecto
-en Cursor/VS Code/Ghostty/Windsurf (por título) — cruzando Spaces/pantallas;
+En modo watch: muévete entre sesiones con ↑/↓ (o j/k) y Enter para ir a
+la seleccionada, o presiona directo la tecla de una fila (1-9, a…) —
+pestaña exacta en Terminal/iTerm2 (por tty), ventana del proyecto en
+Cursor/VS Code/Ghostty/Windsurf — cruzando Spaces/pantallas;
 d para detalle de Docker; u para detalle de uso; q para salir.
 """
 
@@ -49,7 +50,7 @@ import termios
 import threading
 import time
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 GITHUB_REPO = "rotorrest/claude-monitor"
 
 SESSIONS_DIR = os.path.expanduser("~/.claude/sessions")
@@ -70,7 +71,8 @@ GROUPS = [
     ("busy", GREEN, "TRABAJANDO"),
 ]
 
-KEYS = "123456789abcefghijklmnoprstvwxyz"  # sin q (salir), d (docker) ni u (uso)
+# sin q (salir), d (docker), u (uso), j/k (navegación)
+KEYS = "123456789abcefghilmnoprstvwxyz"
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 CTRL_RE = re.compile(r"[\x00-\x08\x0a-\x1f\x7f]")
@@ -901,7 +903,7 @@ def collect():
 
 
 def render(rows, width, height=0, show_keys=False, docker_detail=False,
-           usage_detail=False):
+           usage_detail=False, selected_pid=None):
     """Arma el frame. Si height > 0, garantiza que quepa: primero quita los
     snippets, y si aún no entra trunca filas con «… +N sesiones más»."""
     ttys = ttys_for([r["pid"] for r in rows])
@@ -959,7 +961,13 @@ def render(rows, width, height=0, show_keys=False, docker_detail=False,
                     key_i += 1
                     r["_tty"] = tty
                     keymap[key] = r
-                key_part = f" {DIM}{key or ' '}{RESET} " if show_keys else " "
+                sel = selected_pid is not None and r["pid"] == selected_pid
+                pointer = f"{BOLD}▸{RESET}" if sel else " "
+                key_part = (f"{pointer}{DIM}{key or ' '}{RESET} "
+                            if show_keys else " ")
+                # subrayado en la fila seleccionada (mismo ancho visible)
+                name_fmt = (f"\x1b[4m{r['name'][:name_w]:<{name_w}}\x1b[24m"
+                            if sel else f"{r['name'][:name_w]:<{name_w}}")
                 right = f"{tty or '?'} · {r['pid']} "
                 age = fmt_age(r["age"])
                 path_max = max(12, width - (10 + key_w + name_w + 2) - len(right) - 2)
@@ -967,7 +975,7 @@ def render(rows, width, height=0, show_keys=False, docker_detail=False,
                 left_visible = (1 + key_w) + 2 + 6 + 2 + name_w + 2 + len(path)
                 gap = max(1, width - left_visible - len(right))
                 lines.append(
-                    f"{key_part}{color}●{RESET} {age:>6}  {BOLD}{r['name'][:name_w]:<{name_w}}{RESET}"
+                    f"{key_part}{color}●{RESET} {age:>6}  {BOLD}{name_fmt}{RESET}"
                     f"  {path}{' ' * gap}{DIM}{right}{RESET}"
                 )
                 if r["status"] == "waiting" and r["waitingFor"]:
@@ -1008,7 +1016,29 @@ def watch_loop(interval):
     old_attrs = None
     docker_detail = False
     usage_detail = False
+    selected_pid = None
     threading.Thread(target=slow_loop, daemon=True).start()
+
+    def read_key():
+        """Lee una tecla directo del fd (os.read evita el buffer de Python,
+        que rompería el select); traduce flechas a 'up'/'down'."""
+        try:
+            ch = os.read(fd, 1).decode("utf-8", "ignore")
+        except OSError:
+            return ""
+        if ch != "\x1b":
+            return ch
+        for expected in ("[", None):  # ESC [ A/B
+            r, _, _ = select.select([fd], [], [], 0.03)
+            if not r:
+                return ch
+            nxt = os.read(fd, 1).decode("utf-8", "ignore")
+            if expected == "[":
+                if nxt != "[":
+                    return ch
+            else:
+                return {"A": "up", "B": "down"}.get(nxt, ch)
+        return ch
     # self-pipe: SIGWINCH (resize) despierta el select → redibujo inmediato
     rpipe, wpipe = os.pipe()
     os.set_blocking(wpipe, False)
@@ -1023,26 +1053,32 @@ def watch_loop(interval):
             termios.tcsetattr(fd, termios.TCSANOW, raw)
         while True:
             width, height = term_size()
-            out, keymap = render(collect(), width, height=height,
+            rows = collect()
+            visible = {r["pid"] for r in rows}
+            if selected_pid is not None and selected_pid not in visible:
+                selected_pid = None  # la sesión seleccionada ya no existe
+            out, keymap = render(rows, width, height=height,
                                  show_keys=is_tty, docker_detail=docker_detail,
-                                 usage_detail=usage_detail)
+                                 usage_detail=usage_detail,
+                                 selected_pid=selected_pid)
+            order = list(keymap.values())  # filas visibles, en orden de pantalla
             sys.stdout.write("\x1b[2J\x1b[H")
             print(out)
-            hint = ("tecla = ir a esa sesión · d docker · u uso · q salir"
-                    if is_tty else "Ctrl+C para salir")
+            hint = ("↑↓ mover · Enter ir · tecla directa · d docker"
+                    " · u uso · q salir" if is_tty else "Ctrl+C para salir")
             # sin newline final: si la última línea hace scroll se pierde el título
             print(f"\n{DIM} refresca cada {interval:g}s · {hint}{RESET}", end="")
             if SLOW["update"]:
                 print(f"\n {YELLOW}⬆ v{SLOW['update']} disponible — "
                       f"corre `claudios update`{RESET}", end="")
             sys.stdout.flush()
-            watch_fds = [sys.stdin, rpipe] if is_tty else [rpipe]
+            watch_fds = [fd, rpipe] if is_tty else [rpipe]
             r, _, _ = select.select(watch_fds, [], [], interval)
             if rpipe in r:
                 os.read(rpipe, 1024)  # drenar el aviso de resize
                 continue              # redibujar ya, sin esperar el tick
-            if is_tty and sys.stdin in r:
-                ch = sys.stdin.read(1)
+            if is_tty and fd in r:
+                ch = read_key()
                 if ch in ("q", "Q"):
                     break
                 if ch in ("d", "D"):
@@ -1050,6 +1086,23 @@ def watch_loop(interval):
                     continue
                 if ch in ("u", "U"):
                     usage_detail = not usage_detail
+                    continue
+                if ch in ("up", "down", "j", "J", "k", "K") and order:
+                    pids = [x["pid"] for x in order]
+                    try:
+                        i = pids.index(selected_pid)
+                    except ValueError:
+                        i = 0 if ch in ("down", "j", "J") else len(pids) - 1
+                    else:
+                        step = 1 if ch in ("down", "j", "J") else -1
+                        i = (i + step) % len(pids)
+                    selected_pid = pids[i]
+                    continue
+                if ch in ("\r", "\n") and selected_pid is not None:
+                    sel = next((x for x in order
+                                if x["pid"] == selected_pid), None)
+                    if sel:
+                        focus_row(sel["_tty"], sel["cwd"], sel["pid"])
                     continue
                 row = keymap.get(ch)
                 if row:
