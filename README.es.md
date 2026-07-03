@@ -63,7 +63,7 @@ El salto sabe dónde vive cada sesión: pestaña exacta en **Terminal/iTerm2** (
 ### Qué muestra
 
 - **Sesiones agrupadas por atención**: bloqueadas esperando permiso → paradas esperando tu respuesta (con el último mensaje de Claude) → trabajando.
-- **Agentes en background**: si una sesión terminó su turno pero sus subagentes siguen escribiendo al transcript, se marca `⚙ agentes en background activos` en vez de aparecer como parada.
+- **Agentes y jobs en background**: las sesiones con agentes in-process muestran el conteo en vivo (`⚙ 3 agentes en background`), las que tienen jobs tipo daemon muestran el nombre del job — y ambas cuentan como *trabajando*, detectado vía task outputs, actividad del transcript y árbol de procesos.
 - **Métricas del sistema**: CPU, load, RAM + presión de memoria, swap, disco, Docker por contenedor, batería + temperatura y throttling térmico (para saber si tu Mac aguanta una sesión más).
 - **Uso de tokens y costo (últimas 5h)**: totales in/out/cache, costo API equivalente estimado, burn rate con sparkline de 10 minutos, y top por sesión (tecla `u`) — leído de tus JSONL locales, cero red, con los precios del lineup actual de modelos.
 
