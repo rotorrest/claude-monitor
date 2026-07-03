@@ -27,6 +27,7 @@ or with Homebrew:
 
 ```bash
 brew tap rotorrest/tap
+brew trust rotorrest/tap   # modern Homebrew asks you to trust third-party taps
 brew install claude-monitor
 ```
 
