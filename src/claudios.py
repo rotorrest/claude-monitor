@@ -54,7 +54,7 @@ import textwrap
 import threading
 import time
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 GITHUB_REPO = "rotorrest/claude-monitor"
 
 SESSIONS_DIR = os.path.expanduser("~/.claude/sessions")
@@ -1043,10 +1043,6 @@ def render(rows, width, height=0, show_keys=False, docker_detail=False,
     if height and height < len(head) + 9:
         head = head[:2]  # terminal muy bajita: fuera las métricas de sistema
 
-    if not rows:
-        head.append(f"{DIM} No hay sesiones de Claude Code corriendo.{RESET}")
-        return "\n".join(head), {}
-
     summary = []
     if counts["waiting"]:
         summary.append(f"{RED}{BOLD}{counts['waiting']} esperan tu acción{RESET}")
@@ -1054,7 +1050,27 @@ def render(rows, width, height=0, show_keys=False, docker_detail=False,
         summary.append(f"{YELLOW}{counts['idle']} paradas{RESET}")
     if counts["busy"]:
         summary.append(f"{GREEN}{counts['busy']} trabajando{RESET}")
-    summary_line = " " + f"{DIM} · {RESET}".join(summary)
+    summary_line = (" " + f"{DIM} · {RESET}".join(summary) if summary
+                    else f"{DIM} sin sesiones{RESET}")
+
+    # pie anclado al fondo: separador + resumen + uso — el espacio del
+    # medio queda libre para más claudios
+    footer = [DIM + "─" * width + RESET, summary_line]
+    if not height or height >= 24:
+        ub = usage_block(width, usage_detail)
+        if ub:
+            footer += ub[1:]  # sin la línea en blanco inicial
+    reserve = 3 if SLOW.get("update") else 2  # hint (+aviso de versión)
+
+    def assemble(lines):
+        if height:
+            pad = max(1, height - reserve - len(lines) - len(footer))
+            return lines + [""] * pad + footer
+        return lines + [""] + footer
+
+    if not rows:
+        head.append(f"{DIM} No hay sesiones de Claude Code corriendo.{RESET}")
+        return "\n".join(assemble(head)), {}
 
     def build(with_snippets, budget):
         lines = list(head)
@@ -1111,18 +1127,15 @@ def render(rows, width, height=0, show_keys=False, docker_detail=False,
                         lines.append(f"{' ' * indent}{DIM}└ {snippet}{RESET}")
         if hidden:
             lines.append(f"{' ' * (1 + key_w)}{DIM}… +{hidden} sesiones más{RESET}")
-        lines.append("")
-        lines.append(summary_line)
-        if not height or height >= 24:  # en terminales bajitas se omite
-            lines.extend(usage_block(width, usage_detail))
         return lines, keymap
 
     lines, keymap = build(True, 0)
-    if height and len(lines) + 4 > height:
+    if height and len(lines) + len(footer) + reserve + 1 > height:
         lines, keymap = build(False, 0)
-        if len(lines) + 4 > height:
-            lines, keymap = build(False, max(len(head), height - 7))
-    return "\n".join(lines), keymap
+        if len(lines) + len(footer) + reserve + 1 > height:
+            lines, keymap = build(
+                False, max(len(head), height - len(footer) - reserve - 2))
+    return "\n".join(assemble(lines)), keymap
 
 
 def term_size():

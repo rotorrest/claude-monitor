@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="812" height="828" viewBox="0 0 812 828" font-family="'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace" font-size="13">
-<rect width="812" height="828" rx="12" fill="#0d1117"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="812" height="942" viewBox="0 0 812 942" font-family="'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace" font-size="13">
+<rect width="812" height="942" rx="12" fill="#0d1117"/>
 <path d="M0 12a12 12 0 0 1 12-12h788a12 12 0 0 1 12 12v24h-812z" fill="#161b22"/>
 <circle cx="22" cy="18" r="6" fill="#ff5f57"/>
 <circle cx="42" cy="18" r="6" fill="#febc2e"/>
@@ -7,20 +7,21 @@
 <text x="406" y="22" text-anchor="middle" fill="#8b949e">Claudios — claude-monitor</text>
 <text x="24" y="65" fill="#c9d1d9" font-weight="600" textLength="109" lengthAdjust="spacingAndGlyphs" xml:space="preserve">CLAUDE MONITOR</text>
 <text x="133" y="65" fill="#c9d1d9" opacity="0.55" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> · 8 sesiones</text>
-<text x="710" y="65" fill="#c9d1d9" opacity="0.55" textLength="62" lengthAdjust="spacingAndGlyphs" xml:space="preserve">00:49:46</text>
+<text x="710" y="65" fill="#c9d1d9" opacity="0.55" textLength="62" lengthAdjust="spacingAndGlyphs" xml:space="preserve">01:09:22</text>
 <text x="16" y="84" fill="#c9d1d9" opacity="0.55" textLength="780" lengthAdjust="spacingAndGlyphs" xml:space="preserve">────────────────────────────────────────────────────────────────────────────────────────────────────</text>
 <text x="24" y="103" fill="#c9d1d9" font-weight="600" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">CPU</text>
-<text x="55" y="103" fill="#7ee787" textLength="31" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 12%</text>
-<text x="94" y="103" fill="#7ee787" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">█</text>
-<text x="102" y="103" fill="#c9d1d9" opacity="0.55" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">░░░░░░░░░</text>
-<text x="180" y="103" fill="#c9d1d9" opacity="0.55" textLength="86" lengthAdjust="spacingAndGlyphs" xml:space="preserve">load 3.1/18</text>
-<text x="484" y="103" fill="#c9d1d9" font-weight="600" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">RAM</text>
-<text x="515" y="103" fill="#e3b341" textLength="39" lengthAdjust="spacingAndGlyphs" xml:space="preserve">36.1G</text>
-<text x="554" y="103" fill="#c9d1d9" opacity="0.55" textLength="47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">/48.0G</text>
-<text x="609" y="103" fill="#e3b341" textLength="62" lengthAdjust="spacingAndGlyphs" xml:space="preserve">████████</text>
-<text x="671" y="103" fill="#c9d1d9" opacity="0.55" textLength="16" lengthAdjust="spacingAndGlyphs" xml:space="preserve">░░</text>
-<text x="687" y="103" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> presión </text>
-<text x="757" y="103" fill="#e3b341" textLength="31" lengthAdjust="spacingAndGlyphs" xml:space="preserve">alta</text>
+<text x="55" y="103" fill="#7ee787" textLength="31" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 15%</text>
+<text x="94" y="103" fill="#7ee787" textLength="16" lengthAdjust="spacingAndGlyphs" xml:space="preserve">██</text>
+<text x="110" y="103" fill="#c9d1d9" opacity="0.55" textLength="62" lengthAdjust="spacingAndGlyphs" xml:space="preserve">░░░░░░░░</text>
+<text x="180" y="103" fill="#c9d1d9" opacity="0.55" textLength="86" lengthAdjust="spacingAndGlyphs" xml:space="preserve">load 4.3/18</text>
+<text x="375" y="103" fill="#c9d1d9" font-weight="600" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">RAM</text>
+<text x="406" y="103" fill="#e3b341" textLength="39" lengthAdjust="spacingAndGlyphs" xml:space="preserve">30.0G</text>
+<text x="445" y="103" fill="#c9d1d9" opacity="0.55" textLength="47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">/48.0G</text>
+<text x="500" y="103" fill="#e3b341" textLength="47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">██████</text>
+<text x="546" y="103" fill="#c9d1d9" opacity="0.55" textLength="31" lengthAdjust="spacingAndGlyphs" xml:space="preserve">░░░░</text>
+<text x="578" y="103" fill="#c9d1d9" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> presión </text>
+<text x="648" y="103" fill="#7ee787" textLength="47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">normal</text>
+<text x="702" y="103" fill="#c9d1d9" opacity="0.55" textLength="86" lengthAdjust="spacingAndGlyphs" xml:space="preserve">· swap 1.6G</text>
 <text x="24" y="122" fill="#c9d1d9" font-weight="600" textLength="47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">DOCKER</text>
 <text x="71" y="122" fill="#c9d1d9" textLength="195" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 4 cont · cpu 1.6% · ram </text>
 <text x="266" y="122" fill="#7ee787" textLength="31" lengthAdjust="spacingAndGlyphs" xml:space="preserve">445M</text>
@@ -32,7 +33,7 @@
 <text x="484" y="122" fill="#7ee787" textLength="47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">30.6°C</text>
 <text x="539" y="122" fill="#c9d1d9" opacity="0.55" textLength="109" lengthAdjust="spacingAndGlyphs" xml:space="preserve">· sin throttle</text>
 <text x="671" y="122" fill="#c9d1d9" font-weight="600" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">SSD</text>
-<text x="695" y="122" fill="#c9d1d9" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 728G libres </text>
+<text x="695" y="122" fill="#c9d1d9" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 725G libres </text>
 <text x="39" y="141" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└</text>
 <text x="47" y="141" fill="#c9d1d9" textLength="265" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> postgres-local                   </text>
 <text x="312" y="141" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">cpu</text>
@@ -121,36 +122,37 @@
 <text x="117" y="616" fill="#c9d1d9" font-weight="600" textLength="148" lengthAdjust="spacingAndGlyphs" xml:space="preserve">docs-site          </text>
 <text x="266" y="616" fill="#c9d1d9" textLength="421" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~/work/docs-site                                    </text>
 <text x="687" y="616" fill="#c9d1d9" opacity="0.55" textLength="101" lengthAdjust="spacingAndGlyphs" xml:space="preserve">s014 · 48208 </text>
-<text x="24" y="654" fill="#ff7b72" font-weight="600" textLength="148" lengthAdjust="spacingAndGlyphs" xml:space="preserve">1 esperan tu acción</text>
-<text x="172" y="654" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> · </text>
-<text x="195" y="654" fill="#e3b341" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">4 paradas</text>
-<text x="266" y="654" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> · </text>
-<text x="289" y="654" fill="#7ee787" textLength="94" lengthAdjust="spacingAndGlyphs" xml:space="preserve">3 trabajando</text>
-<text x="24" y="692" fill="#c9d1d9" font-weight="600" textLength="47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">USO 5h</text>
-<text x="71" y="692" fill="#c9d1d9" textLength="117" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 223.2M tokens </text>
-<text x="188" y="692" fill="#c9d1d9" opacity="0.55" textLength="343" lengthAdjust="spacingAndGlyphs" xml:space="preserve">· in 182K · out 1.2M · cache w 9.8M r 212.0M</text>
-<text x="531" y="692" fill="#c9d1d9" textLength="179" lengthAdjust="spacingAndGlyphs" xml:space="preserve">              ~$301.87 </text>
-<text x="710" y="692" fill="#c9d1d9" opacity="0.55" textLength="78" lengthAdjust="spacingAndGlyphs" xml:space="preserve">equiv. API</text>
-<text x="24" y="711" fill="#c9d1d9" font-weight="600" textLength="31" lengthAdjust="spacingAndGlyphs" xml:space="preserve">BURN</text>
-<text x="55" y="711" fill="#c9d1d9" textLength="109" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 195K tok/min </text>
-<text x="164" y="711" fill="#c9d1d9" opacity="0.55" textLength="78" lengthAdjust="spacingAndGlyphs" xml:space="preserve">▂▃▂▅▇▄▃▆▂▄</text>
-<text x="617" y="711" fill="#c9d1d9" opacity="0.55" textLength="31" lengthAdjust="spacingAndGlyphs" xml:space="preserve">top:</text>
-<text x="648" y="711" fill="#c9d1d9" textLength="117" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> data-pipeline </text>
-<text x="765" y="711" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">28%</text>
-<text x="39" y="730" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└</text>
-<text x="47" y="730" fill="#c9d1d9" textLength="328" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> data-pipeline                      62.4M </text>
-<text x="375" y="730" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">tok</text>
-<text x="398" y="730" fill="#c9d1d9" textLength="86" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~$88.10  </text>
-<text x="484" y="730" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">28%</text>
-<text x="39" y="749" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└</text>
-<text x="47" y="749" fill="#c9d1d9" textLength="328" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> api-payments                       41.2M </text>
-<text x="375" y="749" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">tok</text>
-<text x="398" y="749" fill="#c9d1d9" textLength="86" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~$61.30  </text>
-<text x="484" y="749" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">18%</text>
-<text x="39" y="768" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└</text>
-<text x="47" y="768" fill="#c9d1d9" textLength="328" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> webapp-checkout                    33.8M </text>
-<text x="375" y="768" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">tok</text>
-<text x="398" y="768" fill="#c9d1d9" textLength="86" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~$44.90  </text>
-<text x="484" y="768" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">15%</text>
-<text x="16" y="806" fill="#c9d1d9" opacity="0.55" textLength="655" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> refresca cada 3s · ↑↓ mover · Enter ir · tecla directa · d docker · u uso · q salir</text>
+<text x="16" y="768" fill="#c9d1d9" opacity="0.55" textLength="780" lengthAdjust="spacingAndGlyphs" xml:space="preserve">────────────────────────────────────────────────────────────────────────────────────────────────────</text>
+<text x="24" y="787" fill="#ff7b72" font-weight="600" textLength="148" lengthAdjust="spacingAndGlyphs" xml:space="preserve">1 esperan tu acción</text>
+<text x="172" y="787" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> · </text>
+<text x="195" y="787" fill="#e3b341" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">4 paradas</text>
+<text x="266" y="787" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> · </text>
+<text x="289" y="787" fill="#7ee787" textLength="94" lengthAdjust="spacingAndGlyphs" xml:space="preserve">3 trabajando</text>
+<text x="24" y="806" fill="#c9d1d9" font-weight="600" textLength="47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">USO 5h</text>
+<text x="71" y="806" fill="#c9d1d9" textLength="117" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 223.2M tokens </text>
+<text x="188" y="806" fill="#c9d1d9" opacity="0.55" textLength="343" lengthAdjust="spacingAndGlyphs" xml:space="preserve">· in 182K · out 1.2M · cache w 9.8M r 212.0M</text>
+<text x="531" y="806" fill="#c9d1d9" textLength="179" lengthAdjust="spacingAndGlyphs" xml:space="preserve">              ~$301.87 </text>
+<text x="710" y="806" fill="#c9d1d9" opacity="0.55" textLength="78" lengthAdjust="spacingAndGlyphs" xml:space="preserve">equiv. API</text>
+<text x="24" y="825" fill="#c9d1d9" font-weight="600" textLength="31" lengthAdjust="spacingAndGlyphs" xml:space="preserve">BURN</text>
+<text x="55" y="825" fill="#c9d1d9" textLength="109" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> 195K tok/min </text>
+<text x="164" y="825" fill="#c9d1d9" opacity="0.55" textLength="78" lengthAdjust="spacingAndGlyphs" xml:space="preserve">▂▃▂▅▇▄▃▆▂▄</text>
+<text x="617" y="825" fill="#c9d1d9" opacity="0.55" textLength="31" lengthAdjust="spacingAndGlyphs" xml:space="preserve">top:</text>
+<text x="648" y="825" fill="#c9d1d9" textLength="117" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> data-pipeline </text>
+<text x="765" y="825" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">28%</text>
+<text x="39" y="844" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└</text>
+<text x="47" y="844" fill="#c9d1d9" textLength="328" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> data-pipeline                      62.4M </text>
+<text x="375" y="844" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">tok</text>
+<text x="398" y="844" fill="#c9d1d9" textLength="86" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~$88.10  </text>
+<text x="484" y="844" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">28%</text>
+<text x="39" y="863" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└</text>
+<text x="47" y="863" fill="#c9d1d9" textLength="328" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> api-payments                       41.2M </text>
+<text x="375" y="863" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">tok</text>
+<text x="398" y="863" fill="#c9d1d9" textLength="86" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~$61.30  </text>
+<text x="484" y="863" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">18%</text>
+<text x="39" y="882" fill="#c9d1d9" opacity="0.55" textLength="8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">└</text>
+<text x="47" y="882" fill="#c9d1d9" textLength="328" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> webapp-checkout                    33.8M </text>
+<text x="375" y="882" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">tok</text>
+<text x="398" y="882" fill="#c9d1d9" textLength="86" lengthAdjust="spacingAndGlyphs" xml:space="preserve">  ~$44.90  </text>
+<text x="484" y="882" fill="#c9d1d9" opacity="0.55" textLength="23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">15%</text>
+<text x="16" y="920" fill="#c9d1d9" opacity="0.55" textLength="655" lengthAdjust="spacingAndGlyphs" xml:space="preserve"> refresca cada 3s · ↑↓ mover · Enter ir · tecla directa · d docker · u uso · q salir</text>
 </svg>

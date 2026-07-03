@@ -174,8 +174,9 @@ def frame_lines(m, cols, live):
         m.HOME = "/Users/dev"
         rows = DEMO_ROWS
     selected = None if live else DEMO_ROWS[0]["pid"]
-    frame, _ = m.render(rows, cols, show_keys=True, docker_detail=True,
-                        usage_detail=True, selected_pid=selected)
+    frame, _ = m.render(rows, cols, height=46, show_keys=True,
+                        docker_detail=True, usage_detail=True,
+                        selected_pid=selected)
     return frame
 
 
