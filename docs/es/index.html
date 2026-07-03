@@ -1,19 +1,19 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>claudios · claude-monitor — see every Claude Code session at a glance (macOS TUI)</title>
-<meta name="description" content="Free open-source TUI monitor for parallel Claude Code sessions on macOS. See who's working, who's blocked waiting for you, and jump to its terminal tab — Terminal, iTerm2, Cursor, VS Code. Zero dependencies.">
-<link rel="canonical" href="https://rotorrest.github.io/claude-monitor/">
-<meta property="og:title" content="claudios · claude-monitor — Claude Code session monitor for macOS">
-<meta property="og:description" content="See every Claude Code session at a glance — who's working, who's blocked waiting for you — and jump to its terminal with one key.">
+<title>claudios · claude-monitor — monitor de sesiones de Claude Code para macOS (TUI)</title>
+<meta name="description" content="Monitor TUI open source para sesiones paralelas de Claude Code en macOS. Ve quién trabaja, quién está bloqueado esperándote, y salta a su terminal con una tecla — Terminal, iTerm2, Cursor, VS Code. Uso de tokens y costo incluido. Cero dependencias.">
+<link rel="canonical" href="https://rotorrest.github.io/claude-monitor/es/">
+<meta property="og:title" content="claudios · claude-monitor — monitor de sesiones de Claude Code para macOS">
+<meta property="og:description" content="Ve todas tus sesiones de Claude Code de un vistazo — quién trabaja, quién está bloqueado esperándote — y salta a su terminal con una tecla.">
 <meta property="og:image" content="https://raw.githubusercontent.com/rotorrest/claude-monitor/main/docs/social-preview.png">
-<meta property="og:url" content="https://rotorrest.github.io/claude-monitor/">
+<meta property="og:url" content="https://rotorrest.github.io/claude-monitor/es/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="claude-monitor">
-<meta property="og:locale" content="en_US">
-<meta property="og:locale:alternate" content="es_PE">
+<meta property="og:locale" content="es_PE">
+<meta property="og:locale:alternate" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0a0604">
 <link rel="alternate" hreflang="en" href="https://rotorrest.github.io/claude-monitor/">
@@ -28,21 +28,22 @@
   "alternateName": ["claudios", "Claudios"],
   "operatingSystem": "macOS",
   "applicationCategory": "DeveloperApplication",
+  "inLanguage": "es",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-  "url": "https://rotorrest.github.io/claude-monitor/",
+  "url": "https://rotorrest.github.io/claude-monitor/es/",
   "downloadUrl": "https://github.com/rotorrest/claude-monitor/releases/latest",
   "screenshot": "https://raw.githubusercontent.com/rotorrest/claude-monitor/main/docs/social-preview.png",
   "license": "https://github.com/rotorrest/claude-monitor/blob/main/LICENSE",
   "author": { "@type": "Person", "name": "Rodrigo Torres", "url": "https://github.com/rotorrest" },
-  "description": "Open-source TUI monitor for parallel Claude Code sessions on macOS: sessions sorted by attention, one-key jump to the right terminal (Terminal, iTerm2, Cursor, VS Code), click-to-focus notifications, token usage and cost tracking, zero dependencies.",
+  "description": "Monitor TUI open source para sesiones paralelas de Claude Code en macOS: sesiones ordenadas por atención, salto con una tecla al terminal correcto (Terminal, iTerm2, Cursor, VS Code), notificaciones con clic-para-enfocar, uso de tokens y costo, cero dependencias.",
   "featureList": [
-    "Claude Code sessions grouped by attention (blocked, waiting, working)",
-    "One-key jump to the session's terminal across Spaces (Terminal, iTerm2, Cursor, VS Code, Windsurf)",
-    "Native macOS click-to-focus notifications via Claude Code hooks",
-    "Token usage, burn rate and API-equivalent cost for the last 5 hours",
-    "Background-agent detection on idle sessions",
-    "System metrics: CPU, RAM pressure, Docker per container, battery, thermal throttling",
-    "Self-updating with SHA256 verification, zero dependencies (Python stdlib)"
+    "Sesiones de Claude Code agrupadas por atención (bloqueadas, paradas, trabajando)",
+    "Salto con una tecla al terminal de cada sesión cruzando Spaces (Terminal, iTerm2, Cursor, VS Code, Windsurf)",
+    "Notificaciones nativas de macOS con clic-para-enfocar vía hooks de Claude Code",
+    "Uso de tokens, burn rate y costo API equivalente de las últimas 5 horas",
+    "Detección de agentes en background en sesiones idle",
+    "Métricas del sistema: CPU, presión de RAM, Docker por contenedor, batería, throttling térmico",
+    "Auto-actualización con verificación SHA256, cero dependencias (Python stdlib)"
   ]
 }
 </script>
@@ -51,16 +52,16 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "Does claude-monitor send my code or transcripts anywhere?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. Everything is read locally from ~/.claude/. The only network call is a daily version check against api.github.com, and CLAUDIOS_NO_UPDATE_CHECK=1 turns it off." } },
-    { "@type": "Question", "name": "How is it different from ccusage or Claude-Code-Usage-Monitor?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Those are usage and cost trackers. claude-monitor answers a different question — which of my parallel Claude Code sessions needs me right now — and jumps you to its terminal with one key. Since v0.3 it also shows the last 5 hours of token usage, burn rate and API-equivalent cost, read from your local JSONLs." } },
-    { "@type": "Question", "name": "Does it work with Cursor or VS Code integrated terminals?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. It detects which app hosts each session via the process tree: exact tab in Terminal or iTerm2 by tty, and the project window in Cursor, VS Code or Windsurf — jumping across macOS Spaces." } },
-    { "@type": "Question", "name": "How do I install claude-monitor?",
-      "acceptedAnswer": { "@type": "Answer", "text": "brew install rotorrest/tap/claude-monitor — or the curl installer, which verifies SHA256 checksums. Zero dependencies beyond the system Python 3." } },
-    { "@type": "Question", "name": "Why is it called Claudios?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Because nobody runs just one Claude. Claudios is the plural you end up with." } }
+    { "@type": "Question", "name": "¿claude-monitor manda mi código o transcripts a algún lado?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Todo se lee localmente de ~/.claude/. La única llamada de red es un chequeo de versión diario a api.github.com, y CLAUDIOS_NO_UPDATE_CHECK=1 lo apaga." } },
+    { "@type": "Question", "name": "¿En qué se diferencia de ccusage o Claude-Code-Usage-Monitor?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Esos son trackers de uso y costo. claude-monitor responde otra pregunta — cuál de mis sesiones paralelas de Claude Code me necesita ahora — y te salta a su terminal con una tecla. Desde v0.3 también muestra el uso de tokens, burn rate y costo API equivalente de las últimas 5 horas, leído de tus JSONL locales." } },
+    { "@type": "Question", "name": "¿Funciona con los terminales integrados de Cursor o VS Code?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Sí. Detecta qué app contiene cada sesión por el árbol de procesos: pestaña exacta en Terminal o iTerm2 por tty, y la ventana del proyecto en Cursor, VS Code o Windsurf — cruzando los Spaces de macOS." } },
+    { "@type": "Question", "name": "¿Cómo instalo claude-monitor?",
+      "acceptedAnswer": { "@type": "Answer", "text": "brew install rotorrest/tap/claude-monitor — o el installer con curl, que verifica checksums SHA256. Cero dependencias más allá del Python 3 del sistema." } },
+    { "@type": "Question", "name": "¿Por qué se llama Claudios?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Porque nadie corre un solo Claude. Claudios es el plural en el que terminas." } }
   ]
 }
 </script>
@@ -85,7 +86,6 @@
     min-height: 100vh;
     text-shadow: var(--glow);
   }
-  /* CRT: scanlines + vignette, one fixed overlay */
   body::before {
     content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 9;
     background:
@@ -100,7 +100,6 @@
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden;
              clip: rect(0 0 0 0); white-space: nowrap; }
 
-  /* boot overlay (signature) */
   #boot {
     position: fixed; inset: 0; z-index: 20; background: #000;
     padding: 48px max(20px, calc(50vw - 44ch));
@@ -113,13 +112,11 @@
             animation: blink 1.06s steps(1) infinite; }
   @keyframes blink { 50% { opacity: 0; } }
 
-  /* banner */
   .banner { color: var(--paper); text-shadow: 0 0 14px rgba(255, 200, 80, .5), var(--glow);
             font-size: min(1.95vw, 13px); line-height: 1.25; overflow: hidden; user-select: none; }
   .tagline { margin-top: 18px; max-width: 62ch; color: var(--phos); }
   .tagline b { color: var(--paper); font-weight: 600; }
 
-  /* status strip — the tool's three states, live */
   .strip { margin-top: 22px; display: flex; gap: 26px; flex-wrap: wrap; font-size: 14px; }
   .dot { display: inline-block; width: .65em; height: .65em; border-radius: 50%; margin-right: 8px; }
   .s-wait  { color: var(--coral); }  .s-wait .dot  { background: var(--coral);
@@ -128,7 +125,6 @@
   .s-busy  { color: var(--mint); }   .s-busy .dot  { background: var(--mint); }
   @keyframes pulse { 50% { opacity: .25; } }
 
-  /* install block */
   .install { margin-top: 34px; border: 1px solid var(--phos-faint); border-radius: 4px;
              background: rgba(255, 176, 0, .045); padding: 16px 18px; position: relative; }
   .install .ln { display: block; white-space: pre; overflow-x: auto; padding-right: 76px; }
@@ -139,7 +135,6 @@
           padding: 4px 10px; cursor: pointer; text-shadow: none; }
   #copy:hover { background: var(--paper); }
 
-  /* section headers: reverse-video, like a selected TUI row */
   h2 { margin: 56px 0 14px; font-size: 14px; font-weight: 700; letter-spacing: .18em;
        display: inline-block; background: var(--phos); color: #140b00;
        padding: 3px 12px; text-shadow: none; }
@@ -153,7 +148,6 @@
   ul.desc li::before { content: "·  "; color: var(--phos-dim); }
   ul.desc b { color: var(--paper); font-weight: 600; }
 
-  /* the shot: modern mac window on a CRT desk — the joke is the contrast */
   .shot-frame { margin-top: 20px; padding: 14px; border: 1px solid var(--phos-faint);
                 border-radius: 6px; background: rgba(0,0,0,.5); }
   .shot-frame img { width: 100%; display: block; border-radius: 8px; }
@@ -191,11 +185,11 @@
 
 <div id="boot" role="presentation" aria-hidden="true">
   <div id="bootlog"></div>
-  <span class="skip">any key to skip</span>
+  <span class="skip">cualquier tecla para saltar</span>
 </div>
 
 <div class="wrap">
-  <h1 class="sr-only">claude-monitor (Claudios) — Claude Code session monitor for macOS: a terminal TUI that sorts your parallel sessions by attention, jumps to the right terminal with one key, and tracks token usage and cost</h1>
+  <h1 class="sr-only">claude-monitor (Claudios) — monitor de sesiones de Claude Code para macOS: un TUI de terminal que ordena tus sesiones paralelas por atención, salta al terminal correcto con una tecla, y trackea uso de tokens y costo</h1>
   <pre class="banner" role="img" aria-label="CLAUDIOS">
  ██████╗██╗      █████╗ ██╗   ██╗██████╗ ██╗ ██████╗ ███████╗
 ██╔════╝██║     ██╔══██╗██║   ██║██╔══██╗██║██╔═══██╗██╔════╝
@@ -204,89 +198,89 @@
 ╚██████╗███████╗██║  ██║╚██████╔╝██████╔╝██║╚██████╔╝███████║
  ╚═════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝ ╚═════╝ ╚══════╝</pre>
 
-  <p class="tagline">You run too many Claude Code sessions. <b>claudios</b> watches all of them
-  and answers the only question that matters: <b>who needs you right now?</b>
-  Press a key, land in that terminal.<span class="cursor" aria-hidden="true"></span></p>
+  <p class="tagline">Corres demasiadas sesiones de Claude Code. <b>claudios</b> las vigila todas
+  y responde la única pregunta que importa: <b>¿quién me necesita ahora?</b>
+  Presiona una tecla, cae en ese terminal.<span class="cursor" aria-hidden="true"></span></p>
 
-  <div class="strip" aria-label="session states">
-    <span class="s-wait"><span class="dot"></span>1 waiting on you</span>
-    <span class="s-idle"><span class="dot"></span>4 stopped</span>
-    <span class="s-busy"><span class="dot"></span>3 working</span>
+  <div class="strip" aria-label="estados de sesión">
+    <span class="s-wait"><span class="dot"></span>1 esperándote</span>
+    <span class="s-idle"><span class="dot"></span>4 paradas</span>
+    <span class="s-busy"><span class="dot"></span>3 trabajando</span>
   </div>
 
   <div class="install">
     <span class="ln"><span class="p">$</span> <span id="cmd">brew install rotorrest/tap/claude-monitor</span></span>
     <span class="ln"><span class="p">$</span> claude-monitor</span>
-    <span class="ln cmt"># no brew? → curl -fsSL https://raw.githubusercontent.com/rotorrest/claude-monitor/main/install.sh | bash</span>
-    <button id="copy" type="button">copy</button>
+    <span class="ln cmt"># sin brew? → curl -fsSL https://raw.githubusercontent.com/rotorrest/claude-monitor/main/install.sh | bash</span>
+    <button id="copy" type="button">copiar</button>
   </div>
 
   <h2>SCREENSHOT</h2>
   <div class="shot-frame">
-    <img src="demo.svg" alt="claudios TUI: Claude Code sessions grouped by attention — blocked, waiting for reply, working — with system metrics and Docker containers" loading="lazy">
-    <p class="shot-cap">your 2026 sessions, monitored with 1985 conviction</p>
+    <img src="../demo.svg" alt="TUI de claudios: sesiones de Claude Code agrupadas por atención — bloqueadas, esperando respuesta, trabajando — con métricas de sistema, contenedores Docker y uso de tokens" loading="lazy">
+    <p class="shot-cap">tus sesiones de 2026, monitoreadas con convicción de 1985</p>
   </div>
 
   <h2>SYNOPSIS</h2>
   <dl class="man">
-    <dt>claudios <span class="dim">[-w sec]</span></dt><dd>snapshot, or watch mode refreshing every few seconds</dd>
-    <dt>claudios focus <span class="dim">&lt;id&gt;</span></dt><dd>jump to that session's tab — Terminal/iTerm2 by tty, Cursor/VS Code/Windsurf by project window, across Spaces</dd>
-    <dt>claudios --json</dt><dd>machine-readable state for statuslines and scripts</dd>
-    <dt>claudios update</dt><dd>self-update from the latest release, every file SHA256-verified</dd>
+    <dt>claudios <span class="dim">[-w seg]</span></dt><dd>snapshot, o modo watch refrescando cada pocos segundos</dd>
+    <dt>claudios focus <span class="dim">&lt;id&gt;</span></dt><dd>salta a la pestaña de esa sesión — Terminal/iTerm2 por tty, Cursor/VS Code/Windsurf por ventana del proyecto, cruzando Spaces</dd>
+    <dt>claudios --json</dt><dd>estado legible por máquina para statuslines y scripts</dd>
+    <dt>claudios update</dt><dd>auto-actualización desde el último release, cada archivo verificado con SHA256</dd>
   </dl>
 
   <h2>DESCRIPTION</h2>
   <ul class="desc">
-    <li><b>Sorted by attention.</b> Blocked sessions first, then stopped ones — with Claude's last message so you know where it left off — then everything still working.</li>
-    <li><b>Background-agent aware.</b> A session whose subagents are still writing shows as working, not idle. No more "wait, it wasn't done?"</li>
-    <li><b>Click-to-focus notifications.</b> <code>claude-notify</code> turns Claude Code hooks into native macOS notifications; click one, land in that tab.</li>
-    <li><b>System headroom.</b> CPU, RAM pressure, swap, per-container Docker, battery temperature, thermal throttling — can this Mac take one more session?</li>
-    <li><b>Token usage &amp; burn rate.</b> The last 5 hours of tokens and API-equivalent cost, read from your local JSONLs — press <span class="kbd">u</span> for the per-session breakdown.</li>
+    <li><b>Ordenado por atención.</b> Primero las sesiones bloqueadas, luego las paradas — con el último mensaje de Claude para saber en qué quedó — y al final todo lo que sigue trabajando.</li>
+    <li><b>Detecta agentes en background.</b> Una sesión cuyos subagentes siguen escribiendo aparece como trabajando, no como parada. Se acabó el "¿no que ya había terminado?"</li>
+    <li><b>Notificaciones con clic-para-enfocar.</b> <code>claude-notify</code> convierte los hooks de Claude Code en notificaciones nativas de macOS; clic en una, y caes en esa pestaña.</li>
+    <li><b>Margen del sistema.</b> CPU, presión de RAM, swap, Docker por contenedor, temperatura de batería, throttling térmico — ¿aguanta esta Mac una sesión más?</li>
+    <li><b>Uso de tokens y burn rate.</b> Las últimas 5 horas de tokens y costo API equivalente, leído de tus JSONL locales — presiona <span class="kbd">u</span> para el desglose por sesión.</li>
   </ul>
 
   <h2>FILES</h2>
   <dl class="man">
-    <dt>~/.claude/sessions/</dt><dd>session state written by Claude Code — the single source of truth</dd>
-    <dt>~/.local/bin/claudios</dt><dd>one Python file, stdlib only <span class="dim">(aliases: claude-monitor, claudes)</span></dd>
+    <dt>~/.claude/sessions/</dt><dd>estado de sesiones que escribe Claude Code — la única fuente de verdad</dd>
+    <dt>~/.local/bin/claudios</dt><dd>un archivo Python, stdlib puro <span class="dim">(aliases: claude-monitor, claudes)</span></dd>
   </dl>
 
   <h2>SECURITY</h2>
-  <p class="man">Everything is read locally. No telemetry, no accounts, no dependencies to audit — CI enforces
-  stdlib-only imports and every release passes <code>bandit</code> + CodeQL before publishing. The one network
-  call is a daily version check <span class="dim">(CLAUDIOS_NO_UPDATE_CHECK=1 turns it off)</span>.</p>
+  <p class="man">Todo se lee localmente. Sin telemetría, sin cuentas, sin dependencias que auditar — el CI
+  fuerza imports stdlib-only y cada release pasa <code>bandit</code> + CodeQL antes de publicarse. La única
+  llamada de red es un chequeo de versión diario <span class="dim">(CLAUDIOS_NO_UPDATE_CHECK=1 lo apaga)</span>.</p>
 
   <h2>FAQ</h2>
   <dl class="man">
-    <dt>Does it send my code or transcripts anywhere?</dt>
-    <dd>No. Everything is read locally from <code>~/.claude/</code>. The one network call is a daily
-    version check <span class="dim">(CLAUDIOS_NO_UPDATE_CHECK=1 turns it off)</span>.</dd>
-    <dt>How is it different from ccusage or Claude-Code-Usage-Monitor?</dt>
-    <dd>Those track usage and cost. claude-monitor answers <em>which session needs me right now</em>
-    and jumps you there — and since v0.3 it also shows your 5-hour token usage, burn rate and
-    API-equivalent cost.</dd>
-    <dt>Does it work with Cursor or VS Code terminals?</dt>
-    <dd>Yes — it walks the process tree to find the host app: exact tab in Terminal/iTerm2 by tty,
-    project window in Cursor/VS Code/Windsurf, across Spaces.</dd>
-    <dt>Why "Claudios"?</dt>
-    <dd>Because nobody runs just one Claude. Claudios is the plural you end up with.</dd>
+    <dt>¿Manda mi código o transcripts a algún lado?</dt>
+    <dd>No. Todo se lee localmente de <code>~/.claude/</code>. La única llamada de red es el chequeo
+    de versión diario <span class="dim">(CLAUDIOS_NO_UPDATE_CHECK=1 lo apaga)</span>.</dd>
+    <dt>¿En qué se diferencia de ccusage o Claude-Code-Usage-Monitor?</dt>
+    <dd>Esos trackean uso y costo. claude-monitor responde <em>cuál sesión me necesita ahora</em>
+    y te salta ahí — y desde v0.3 también muestra tu uso de tokens de 5 horas, burn rate y
+    costo API equivalente.</dd>
+    <dt>¿Funciona con los terminales de Cursor o VS Code?</dt>
+    <dd>Sí — recorre el árbol de procesos para encontrar la app contenedora: pestaña exacta en
+    Terminal/iTerm2 por tty, ventana del proyecto en Cursor/VS Code/Windsurf, cruzando Spaces.</dd>
+    <dt>¿Por qué "Claudios"?</dt>
+    <dd>Porque nadie corre un solo Claude. Claudios es el plural en el que terminas.</dd>
   </dl>
 
   <h2>SEE ALSO</h2>
   <table class="seealso">
-    <tr><td><a href="https://github.com/ryoppippi/ccusage">ccusage(1)</a></td><td>costs and tokens from your local JSONLs</td></tr>
-    <tr><td><a href="https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor">usage-monitor(1)</a></td><td>plan limits, burn rate, prediction</td></tr>
-    <tr><td><a href="https://github.com/smtg-ai/claude-squad">claude-squad(1)</a></td><td>agents in tmux + git worktrees</td></tr>
+    <tr><td><a href="https://github.com/ryoppippi/ccusage">ccusage(1)</a></td><td>costos y tokens desde tus JSONL locales</td></tr>
+    <tr><td><a href="https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor">usage-monitor(1)</a></td><td>límites de plan, burn rate, predicción</td></tr>
+    <tr><td><a href="https://github.com/smtg-ai/claude-squad">claude-squad(1)</a></td><td>agentes en tmux + git worktrees</td></tr>
   </table>
 
   <div class="cta">
-    <a class="star" href="https://github.com/rotorrest/claude-monitor">★ star it on GitHub</a>
-    <p class="alt"><a href="https://github.com/rotorrest/claude-monitor/releases/latest">latest release</a>
-    · <a href="https://github.com/rotorrest/claude-monitor/blob/main/README.es.md">🇪🇸 léelo en español</a></p>
+    <a class="star" href="https://github.com/rotorrest/claude-monitor">★ dale una estrella en GitHub</a>
+    <p class="alt"><a href="https://github.com/rotorrest/claude-monitor/releases/latest">último release</a>
+    · <a href="../">🇬🇧 read it in English</a></p>
   </div>
 
   <footer>
-    <span>MIT · zero deps · no telemetry</span>
-    <span>best viewed at 80×25 · made for people who run too many Claudes</span>
+    <span>MIT · cero deps · sin telemetría</span>
+    <span>mejor visto en 80×25 · hecho para gente que corre demasiados Claudes</span>
   </footer>
 </div>
 
@@ -297,11 +291,11 @@
   if (reduced || sessionStorage.getItem("booted")) { boot.remove(); return; }
   sessionStorage.setItem("booted", "1");
   var lines = [
-    "CLAUDIOS BIOS v0.3.0 — phosphor ........ <span class='ok'>ok</span>",
-    "mounting ~/.claude/sessions ............ <span class='ok'>ok</span>",
-    "scanning Terminal iTerm2 Cursor Code ... <span class='ok'>ok</span>",
-    "8 sessions found · <span style='color:var(--coral)'>1 waiting on you</span>",
-    "starting claude-monitor…"
+    "CLAUDIOS BIOS v0.3.0 — fósforo ......... <span class='ok'>ok</span>",
+    "montando ~/.claude/sessions ............ <span class='ok'>ok</span>",
+    "escaneando Terminal iTerm2 Cursor Code . <span class='ok'>ok</span>",
+    "8 sesiones encontradas · <span style='color:var(--coral)'>1 esperándote</span>",
+    "iniciando claude-monitor…"
   ];
   var log = document.getElementById("bootlog"), i = 0, done = false;
   function finish() {
@@ -321,13 +315,13 @@
   boot.addEventListener("click", finish);
   addEventListener("keydown", finish, { once: true });
   setTimeout(next, 240);
-  setTimeout(finish, 4500); /* red de seguridad */
+  setTimeout(finish, 4500);
 })();
 
 document.getElementById("copy").addEventListener("click", function () {
   var b = this;
   navigator.clipboard.writeText(document.getElementById("cmd").textContent).then(function () {
-    b.textContent = "copied"; setTimeout(function () { b.textContent = "copy"; }, 1400);
+    b.textContent = "copiado"; setTimeout(function () { b.textContent = "copiar"; }, 1400);
   });
 });
 </script>
