@@ -1,87 +1,69 @@
-# claudes · claude-monitor
+# claude-monitor (`claudes`)
 
-> Un solo comando para saber qué están haciendo **todos** tus Claude Code: quién trabaja, quién terminó, quién está bloqueado esperándote — y saltar a su pestaña con una tecla.
+> One command to see what **all** your Claude Code sessions are doing: who's working, who finished, who's blocked waiting for you — and jump to its terminal tab with a single keystroke.
 
-[![CI](https://github.com/rotorrest/claudes/actions/workflows/ci.yml/badge.svg)](https://github.com/rotorrest/claudes/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/rotorrest/claudes/actions/workflows/codeql.yml/badge.svg)](https://github.com/rotorrest/claudes/actions/workflows/codeql.yml)
-[![Release](https://img.shields.io/github/v/release/rotorrest/claudes)](https://github.com/rotorrest/claudes/releases/latest)
+🇬🇧 English · [🇪🇸 Español](README.es.md)
+
+[![CI](https://github.com/rotorrest/claude-monitor/actions/workflows/ci.yml/badge.svg)](https://github.com/rotorrest/claude-monitor/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/rotorrest/claude-monitor/actions/workflows/codeql.yml/badge.svg)](https://github.com/rotorrest/claude-monitor/actions/workflows/codeql.yml)
+[![Release](https://img.shields.io/github/v/release/rotorrest/claude-monitor)](https://github.com/rotorrest/claude-monitor/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![macOS](https://img.shields.io/badge/macOS-Apple%20Silicon%20%7C%20Intel-lightgrey)
-![deps](https://img.shields.io/badge/dependencias-0%20(stdlib)-brightgreen)
+![deps](https://img.shields.io/badge/dependencies-0%20(stdlib)-brightgreen)
 
-```text
- CLAUDE MONITOR · 5 sesiones                                          23:08:01
- ──────────────────────────────────────────────────────────────────────────────
- CPU  13% █░░░░░░░░░ load 4.1/18        RAM 33.1G/48G ███████░░░ presión normal
- DOCKER 4 cont · cpu 0.2% · ram 290M    BAT 100% AC · 30.7°C   SSD 730G libres
- ──────────────────────────────────────────────────────────────────────────────
+<p align="center">
+  <img src="docs/demo.svg" alt="claude-monitor TUI showing Claude Code sessions grouped by attention: blocked, waiting for reply, and working" width="900">
+</p>
 
-   ▍ESPERAN TU ACCIÓN (1)
- 1 ●    4m  api-pagos        ~/work/api-pagos                    s003 · 41231
-            ⏸ esperando: permiso para Bash(git push)
+You run 5+ Claude Code sessions in parallel and live alt-tabbing to check which one needs you. `claudes` reads the state Claude Code publishes in `~/.claude/sessions/` and shows it sorted by attention: blocked sessions first, then stopped ones (with Claude's last message, so you know *where it left off*), then the ones still working. Press a row's key and it drops you in that session's terminal tab.
 
-   ▍PARADAS · esperan tu respuesta (2)
- 2 ●   32m  blog             ~/proyectos/blog                    s007 · 38112
-            └ Listo el post. ¿Lo publico o quieres revisar el borrador antes?
- 3 ●    2m  scraper          ~/work/scraper                      s012 · 44903
-            └ Los tests pasan. Quedó pendiente decidir el formato del export.
-
-   ▍TRABAJANDO (2)
- 4 ●   18m  data-pipeline    ~/work/etl                          s001 · 39557
-            ⚙ agentes en background activos
- 5 ●    1m  frontend         ~/work/webapp                       s009 · 45120
-
- 1 esperan tu acción · 2 paradas · 2 trabajando
-```
-
-Corres 5+ sesiones de Claude Code en paralelo y vives alt-tabeando para ver cuál te necesita. `claudes` lee el estado que Claude Code publica en `~/.claude/sessions/` y te lo muestra ordenado por atención: primero lo bloqueado, después lo parado (con el último mensaje de Claude, para saber *en qué quedó*), al final lo que sigue trabajando. Presionas la tecla de la fila y te planta en esa pestaña de Terminal/iTerm2.
-
-## Instalación
+## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/rotorrest/claudes/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/rotorrest/claude-monitor/main/install.sh | bash
 ```
 
-o con Homebrew:
+or with Homebrew:
 
 ```bash
-brew install rotorrest/tap/claudes
+brew tap rotorrest/tap
+brew install claude-monitor
 ```
 
-El installer verifica los SHA256 del release, instala `claudes` + `claude-notify` en `~/.local/bin` y crea el alias `claude-monitor`. Cero dependencias: Python 3 de sistema y ya.
+The installer verifies the release's SHA256 checksums, installs `claudes` + `claude-notify` into `~/.local/bin` and creates the `claude-monitor` alias. Zero dependencies: system Python 3 and nothing else.
 
-## Uso
+## Usage
 
 ```bash
-claudes                  # snapshot de todas las sesiones
-claudes -w [seg]         # modo watch (refresca cada N seg, default 3)
-claude-monitor           # alias: arranca directo en modo watch
-claudes focus <id>       # enfoca la pestaña de esa sesión (sessionId o pid)
-claudes --json           # snapshot en JSON, para scripts/statuslines
-claudes update           # auto-update desde el último release (verifica SHA256)
+claudes                  # snapshot of every session
+claudes -w [sec]         # watch mode (refreshes every N sec, default 3)
+claude-monitor           # alias: starts straight in watch mode
+claudes focus <id>       # focus that session's tab (sessionId or pid)
+claudes --json           # JSON snapshot, for scripts/statuslines
+claudes update           # self-update from the latest release (SHA256-verified)
 ```
 
-### Teclas en modo watch
+### Watch-mode keys
 
-| Tecla | Acción |
-|-------|--------|
-| `1-9`, `a`… | saltar a esa sesión, cruzando Spaces/pantallas |
-| `d` | detalle de Docker por contenedor |
-| `q` | salir |
+| Key | Action |
+|-----|--------|
+| `1-9`, `a`… | jump to that session, across Spaces/screens |
+| `d` | per-container Docker detail |
+| `q` | quit |
 
-El salto sabe dónde vive cada sesión: pestaña exacta en **Terminal/iTerm2** (por tty), ventana del proyecto en **Cursor/VS Code/Windsurf** (detecta el editor por árbol de procesos y reutiliza su ventana con `open -a`). Hasta donde sabemos, ningún otro monitor salta a terminales integradas de editores.
+The jump knows where each session lives: exact tab in **Terminal/iTerm2** (by tty), the project window in **Cursor/VS Code/Windsurf** (detects the editor via the process tree and reuses its window with `open -a`). As far as we know, no other monitor jumps into editor-integrated terminals.
 
-### Qué muestra
+### What it shows
 
-- **Sesiones agrupadas por atención**: bloqueadas esperando permiso → paradas esperando tu respuesta (con el último mensaje de Claude) → trabajando.
-- **Agentes en background**: si una sesión terminó su turno pero sus subagentes siguen escribiendo al transcript, se marca `⚙ agentes en background activos` en vez de aparecer como parada.
-- **Métricas del sistema**: CPU, load, RAM + presión de memoria, swap, disco, Docker por contenedor, batería + temperatura y throttling térmico (para saber si tu Mac aguanta una sesión más).
+- **Sessions grouped by attention**: blocked waiting for permission → stopped waiting for your reply (with Claude's last message) → working.
+- **Background agents**: if a session ended its turn but its subagents are still writing to the transcript, it's flagged `⚙ agentes en background activos` instead of showing as stopped.
+- **System metrics**: CPU, load, RAM + memory pressure, swap, disk, per-container Docker, battery + temperature and thermal throttling (so you know whether your Mac can take one more session).
 
-## Notificaciones
+## Notifications
 
-`claude-notify` convierte los hooks `Stop`/`Notification` de Claude Code en notificaciones nativas de macOS. Con [terminal-notifier](https://github.com/julienXX/terminal-notifier) instalado (`brew install terminal-notifier`), **hacer clic en la notificación te lleva a la pestaña de esa sesión**.
+`claude-notify` turns Claude Code's `Stop`/`Notification` hooks into native macOS notifications. With [terminal-notifier](https://github.com/julienXX/terminal-notifier) installed (`brew install terminal-notifier`), **clicking the notification takes you to that session's tab**.
 
-Agrega a `~/.claude/settings.json` (fusiona con tus hooks existentes, no los reemplaces):
+Add to `~/.claude/settings.json` (merge with your existing hooks, don't replace them):
 
 ```json
 {
@@ -96,81 +78,82 @@ Agrega a `~/.claude/settings.json` (fusiona con tus hooks existentes, no los ree
 }
 ```
 
-## Modo JSON
+## JSON mode
 
-`claudes --json` emite el estado crudo para componer con statuslines, SwiftBar/xbar, o lo que quieras:
+`claudes --json` emits raw state to compose with statuslines, SwiftBar/xbar, or anything else:
 
 ```json
 [
   {
     "pid": 41231,
-    "name": "api-pagos",
-    "cwd": "/Users/tu/work/api-pagos",
+    "name": "api-payments",
+    "cwd": "/Users/you/work/api-payments",
     "sessionId": "1fab6f1a-…",
     "status": "waiting",
     "bg": false,
     "age": 254.3,
-    "waitingFor": "permiso para Bash(git push)"
+    "waitingFor": "permission for Bash(git push)"
   }
 ]
 ```
 
 ## Auto-update
 
-- `claudes update` descarga el último release de GitHub, **verifica cada archivo contra `SHA256SUMS`** y se reemplaza atómicamente.
-- En modo watch revisa (máximo una vez al día) si hay versión nueva y lo avisa en el pie de pantalla.
-- `CLAUDES_NO_UPDATE_CHECK=1` apaga el chequeo. Si instalaste por brew, puedes preferir `brew upgrade claudes`.
+- `claudes update` downloads the latest GitHub release, **verifies every file against `SHA256SUMS`** and replaces itself atomically.
+- Watch mode checks (at most once a day) whether a new version exists and says so in the footer.
+- `CLAUDES_NO_UPDATE_CHECK=1` turns the check off. If you installed via brew you may prefer `brew upgrade claude-monitor`.
 
-## Seguridad y privacidad
+## Security & privacy
 
-- **Todo es local.** La herramienta lee archivos de tu `~/.claude/` y comandos de sistema (`ps`, `vm_stat`, `pmset`…). La única llamada de red es el chequeo de versión a `api.github.com` (1/día, opt-out arriba).
-- **Cero dependencias.** Python stdlib puro — no hay supply chain que auditar, y el CI lo verifica con una guardia `stdlib-only` que falla si algún import sale de la stdlib.
-- **Entradas saneadas.** Los strings que vienen de archivos de sesión/transcripts se limpian de caracteres de control antes de renderizar (nada de inyección de escapes ANSI en tu terminal), los IDs de sesión se validan antes de usarse en rutas o comandos, y los tty se validan antes de interpolarse en AppleScript.
-- **Pipeline con dientes.** Cada push corre `ruff` + `bandit` + CodeQL + shellcheck + la guardia stdlib; cada release pasa el mismo gate **antes** de publicarse, y el tag debe coincidir con `__version__`.
+- **Everything is local.** The tool reads files under your `~/.claude/` and system commands (`ps`, `vm_stat`, `pmset`…). The only network call is the version check against `api.github.com` (1/day, opt-out above).
+- **Zero dependencies.** Pure Python stdlib — no supply chain to audit, and CI enforces it with a `stdlib-only` guard that fails if any import leaves the stdlib.
+- **Sanitized inputs.** Strings coming from session files/transcripts are stripped of control characters before rendering (no ANSI-escape injection into your terminal), session IDs are validated before being used in paths or commands, and ttys are validated before being interpolated into AppleScript.
+- **Pipeline with teeth.** Every push runs `ruff` + `bandit` + CodeQL + shellcheck + the stdlib guard; every release passes the same gate **before** publishing, and the tag must match `__version__`.
 
-## Roadmap (features robadas con orgullo)
+## Roadmap (features proudly stolen)
 
-Ideas mapeadas de las mejores herramientas del ecosistema — crédito donde corresponde:
+Ideas mapped from the best tools in the ecosystem — credit where due:
 
-- [x] Orden attention-first (validado por [tmux-claude-session-manager](https://github.com/craftzdog/tmux-claude-session-manager))
-- [x] `--json` para componer con otras herramientas ([Claude-Code-Usage-Monitor](https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor))
-- [x] Detección de agentes en background en sesiones "idle"
-- [x] Salto a terminales integradas de editores (Cursor/VS Code/Windsurf) cruzando Spaces
-- [ ] Notificaciones con debounce, duración del turno y supresión si ya estás mirando esa pestaña ([claude-ghostty-notify](https://github.com/thejustinwalsh/claude-ghostty-notify), [CCNotify](https://github.com/dazuiba/CCNotify))
-- [ ] Salto por tty en Ghostty (hoy solo fallback por título en el Space actual) ([claude-code-monitor](https://github.com/onikan27/claude-code-monitor))
-- [ ] Tokens/costo por sesión + burn rate desde los JSONL ([ccusage](https://github.com/ryoppippi/ccusage))
-- [ ] % de contexto restante por sesión ([claude-tui](https://github.com/slima4/claude-tui))
-- [ ] CPU/RAM por sesión vía árbol de procesos ([claude-dashboard](https://github.com/seunggabi/claude-dashboard))
-- [ ] Layout compacto automático en terminales angostas (ccusage)
-- [ ] Web UI móvil con QR + aprobación remota de permisos (claude-code-monitor) — la joya de la corona
+- [x] Attention-first ordering (validated by [tmux-claude-session-manager](https://github.com/craftzdog/tmux-claude-session-manager))
+- [x] `--json` to compose with other tools ([Claude-Code-Usage-Monitor](https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor))
+- [x] Background-agent detection on "idle" sessions
+- [x] Jumping into editor-integrated terminals (Cursor/VS Code/Windsurf) across Spaces
+- [ ] Notification polish: debounce, turn duration, suppress when you're already looking at that tab ([claude-ghostty-notify](https://github.com/thejustinwalsh/claude-ghostty-notify), [CCNotify](https://github.com/dazuiba/CCNotify))
+- [ ] Ghostty tty-based jumping (today only a title-based fallback on the current Space) ([claude-code-monitor](https://github.com/onikan27/claude-code-monitor))
+- [ ] Per-session tokens/cost + burn rate from the JSONLs ([ccusage](https://github.com/ryoppippi/ccusage))
+- [ ] Remaining-context % per session ([claude-tui](https://github.com/slima4/claude-tui))
+- [ ] Per-session CPU/RAM via process tree ([claude-dashboard](https://github.com/seunggabi/claude-dashboard))
+- [ ] Auto-compact layout on narrow terminals (ccusage)
+- [ ] Mobile web UI with QR + remote permission approval (claude-code-monitor) — the crown jewel
 
-## Herramientas relacionadas
+## Related tools
 
-| Herramienta | Enfoque |
+| Tool | Focus |
 |---|---|
-| [ccusage](https://github.com/ryoppippi/ccusage) | costos y tokens desde los JSONL |
-| [Claude-Code-Usage-Monitor](https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor) | límites de plan, burn rate, predicción |
-| [claude-squad](https://github.com/smtg-ai/claude-squad) | orquestar agentes en tmux + worktrees |
-| [ccboard](https://github.com/FlorianBruniaux/ccboard) | dashboard todo-en-uno (Rust) |
-| **claudes** | **¿quién necesita mi atención ahora y en qué quedó?** |
+| [ccusage](https://github.com/ryoppippi/ccusage) | costs and tokens from the JSONLs |
+| [Claude-Code-Usage-Monitor](https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor) | plan limits, burn rate, prediction |
+| [claude-squad](https://github.com/smtg-ai/claude-squad) | orchestrating agents in tmux + worktrees |
+| [ccboard](https://github.com/FlorianBruniaux/ccboard) | all-in-one dashboard (Rust) |
+| **claude-monitor** | **who needs my attention right now, and where did it leave off?** |
 
-## Desarrollo
+## Development
 
 ```bash
-git clone https://github.com/rotorrest/claudes && cd claudes
-python3 src/claudes.py -w        # correr desde el fuente
+git clone https://github.com/rotorrest/claude-monitor && cd claude-monitor
+python3 src/claudes.py -w        # run from source
 ruff check src/ && bandit -ll -r src/
+python3 tools/screenshot.py docs/demo.svg   # regenerate the README screenshot
 ```
 
-Los PRs corren el mismo CI (lint, SAST, CodeQL, smoke test en macOS). Para publicar: bump de `__version__` en `src/claudes.py`, tag `vX.Y.Z`, push del tag — el pipeline hace el resto (gate de seguridad → build → release con checksums → bump de la fórmula de brew).
+PRs run the same CI (lint, SAST, CodeQL, macOS smoke test). To release: bump `__version__` in `src/claudes.py`, tag `vX.Y.Z`, push the tag — the pipeline does the rest (security gate → build → release with checksums → brew formula bump).
 
-## Desinstalar
+## Uninstall
 
 ```bash
 rm ~/.local/bin/claudes ~/.local/bin/claude-notify ~/.local/bin/claude-monitor
-# o: brew uninstall claudes
+# or: brew uninstall claude-monitor
 ```
 
-## Licencia
+## License
 
 [MIT](LICENSE)

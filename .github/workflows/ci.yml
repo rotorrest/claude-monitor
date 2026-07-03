@@ -20,7 +20,7 @@ jobs:
       - name: Instalar analizadores
         run: python -m pip install --quiet ruff bandit
       - name: ruff (lint)
-        run: ruff check src/ .github/scripts/
+        run: ruff check src/ .github/scripts/ tools/
       - name: bandit (SAST)
         run: bandit -ll -r src/
       - name: Guardia stdlib-only (supply chain)

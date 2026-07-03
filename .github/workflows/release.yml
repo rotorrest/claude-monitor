@@ -51,8 +51,8 @@ jobs:
           install -m 0755 src/claude_notify.py dist/claude-notify
           install -m 0755 install.sh dist/install.sh
           cp README.md LICENSE dist/
-          tar -czf "dist/claudes-$ver.tar.gz" -C dist claudes claude-notify install.sh README.md LICENSE
-          (cd dist && sha256sum claudes claude-notify install.sh "claudes-$ver.tar.gz" > SHA256SUMS)
+          tar -czf "dist/claude-monitor-$ver.tar.gz" -C dist claudes claude-notify install.sh README.md LICENSE
+          (cd dist && sha256sum claudes claude-notify install.sh "claude-monitor-$ver.tar.gz" > SHA256SUMS)
           cat dist/SHA256SUMS
       - name: Publicar release con assets
         env:
@@ -60,8 +60,8 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" \
             dist/claudes dist/claude-notify dist/install.sh \
-            dist/claudes-*.tar.gz dist/SHA256SUMS \
-            --title "claudes $GITHUB_REF_NAME" --generate-notes
+            dist/claude-monitor-*.tar.gz dist/SHA256SUMS \
+            --title "claude-monitor $GITHUB_REF_NAME" --generate-notes
       - name: Bump de la fórmula en rotorrest/homebrew-tap
         env:
           TAP_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
@@ -71,12 +71,12 @@ jobs:
             exit 0
           fi
           ver="${GITHUB_REF_NAME#v}"
-          sha="$(grep "claudes-$ver.tar.gz" dist/SHA256SUMS | cut -d' ' -f1)"
+          sha="$(grep "claude-monitor-$ver.tar.gz" dist/SHA256SUMS | cut -d' ' -f1)"
           git clone "https://x-access-token:${TAP_TOKEN}@github.com/rotorrest/homebrew-tap.git" tap
           cd tap
-          sed -i -E "s|releases/download/v[0-9.]+/claudes-[0-9.]+\.tar\.gz|releases/download/v$ver/claudes-$ver.tar.gz|" Formula/claudes.rb
-          sed -i -E "s|sha256 \"[0-9a-f]{64}\"|sha256 \"$sha\"|" Formula/claudes.rb
+          sed -i -E "s|releases/download/v[0-9.]+/claude-monitor-[0-9.]+\.tar\.gz|releases/download/v$ver/claude-monitor-$ver.tar.gz|" Formula/claude-monitor.rb
+          sed -i -E "s|sha256 \"[0-9a-f]{64}\"|sha256 \"$sha\"|" Formula/claude-monitor.rb
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "claudes $ver"
+          git commit -am "claude-monitor $ver"
           git push

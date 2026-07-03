@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Instalador de claudes / claude-monitor — https://github.com/rotorrest/claudes
-#   curl -fsSL https://raw.githubusercontent.com/rotorrest/claudes/main/install.sh | bash
+# Instalador de claudes / claude-monitor — https://github.com/rotorrest/claude-monitor
+#   curl -fsSL https://raw.githubusercontent.com/rotorrest/claude-monitor/main/install.sh | bash
 # Variables opcionales:
 #   CLAUDES_INSTALL_DIR  destino (default ~/.local/bin)
 #   CLAUDES_VERSION      tag a instalar, ej. v0.1.0 (default: último release)
 set -euo pipefail
 
-REPO="rotorrest/claudes"
+REPO="rotorrest/claude-monitor"
 INSTALL_DIR="${CLAUDES_INSTALL_DIR:-$HOME/.local/bin}"
 
 command -v curl >/dev/null || { echo "error: necesito curl" >&2; exit 1; }
@@ -51,5 +51,5 @@ cat <<'EOF'
 Siguiente paso (opcional, para notificaciones nativas con clic-para-saltar):
   brew install terminal-notifier
 y registra los hooks Stop/Notification en ~/.claude/settings.json — ver README:
-  https://github.com/rotorrest/claudes#notificaciones
+  https://github.com/rotorrest/claude-monitor#notifications
 EOF

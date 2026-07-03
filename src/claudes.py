@@ -43,8 +43,8 @@ import termios
 import threading
 import time
 
-__version__ = "0.1.0"
-GITHUB_REPO = "rotorrest/claudes"
+__version__ = "0.1.1"
+GITHUB_REPO = "rotorrest/claude-monitor"
 
 SESSIONS_DIR = os.path.expanduser("~/.claude/sessions")
 PROJECTS_DIR = os.path.expanduser("~/.claude/projects")
