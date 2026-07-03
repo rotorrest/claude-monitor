@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>claude-monitor — see every Claude Code session at a glance (macOS TUI)</title>
+<meta name="description" content="Free open-source TUI monitor for parallel Claude Code sessions on macOS. See who's working, who's blocked waiting for you, and jump to its terminal tab — Terminal, iTerm2, Cursor, VS Code. Zero dependencies.">
+<link rel="canonical" href="https://rotorrest.github.io/claude-monitor/">
+<meta property="og:title" content="claude-monitor · Claudios">
+<meta property="og:description" content="See every Claude Code session at a glance — who's working, who's blocked waiting for you — and jump to its terminal with one key.">
+<meta property="og:image" content="https://raw.githubusercontent.com/rotorrest/claude-monitor/main/docs/social-preview.png">
+<meta property="og:url" content="https://rotorrest.github.io/claude-monitor/">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { background: #0d1117; color: #c9d1d9; font-family: -apple-system, "Segoe UI", sans-serif;
+         line-height: 1.55; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 56px 24px 80px; }
+  h1 { font-family: "SF Mono", Menlo, Consolas, monospace; color: #e6edf3;
+       font-size: clamp(30px, 6vw, 52px); letter-spacing: -1px; }
+  h1 .dim { color: #8b949e; font-weight: 400; }
+  .tag { color: #8b949e; font-size: clamp(16px, 2.6vw, 21px); margin-top: 12px; max-width: 640px; }
+  .chips { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .chip { border: 1px solid #30363d; border-radius: 999px; padding: 6px 14px; font-size: 14px;
+          font-family: "SF Mono", Menlo, monospace; color: #7ee787; }
+  .chip.y { color: #e3b341; } .chip.r { color: #ff7b72; }
+  pre { background: #161b22; border: 1px solid #30363d; border-radius: 10px;
+        padding: 14px 18px; overflow-x: auto; margin-top: 28px;
+        font-family: "SF Mono", Menlo, monospace; font-size: 14.5px; color: #e6edf3; }
+  pre .c { color: #8b949e; }
+  .shot { width: 100%; margin-top: 40px; border-radius: 12px;
+          box-shadow: 0 24px 80px rgba(0,0,0,.55); display: block; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 16px; margin-top: 44px; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 18px; }
+  .card h3 { color: #e6edf3; font-size: 16px; margin-bottom: 6px; }
+  .card p { color: #8b949e; font-size: 14.5px; }
+  a { color: #58a6ff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .cta { margin-top: 44px; font-size: 16px; }
+  footer { margin-top: 56px; color: #484f58; font-size: 13.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>claude-monitor <span class="dim">· Claudios</span></h1>
+  <p class="tag">See every Claude Code session at a glance — who's working, who's blocked
+     waiting for you — and jump to its terminal with one key. A zero-dependency TUI for macOS.</p>
+  <div class="chips">
+    <span class="chip">0 dependencies</span>
+    <span class="chip y">self-updating</span>
+    <span class="chip r">macOS</span>
+    <span class="chip">MIT</span>
+  </div>
+
+  <pre><span class="c"># Homebrew</span>
+brew install rotorrest/tap/claude-monitor
+
+<span class="c"># or the installer (SHA256-verified)</span>
+curl -fsSL https://raw.githubusercontent.com/rotorrest/claude-monitor/main/install.sh | bash</pre>
+
+  <img class="shot" src="demo.svg" alt="claude-monitor TUI showing Claude Code sessions grouped by attention: blocked, waiting for reply, and working — with system metrics and Docker containers">
+
+  <div class="grid">
+    <div class="card"><h3>Sorted by attention</h3>
+      <p>Blocked sessions first, then stopped ones — with Claude's last message so you know where it left off — then the ones still working.</p></div>
+    <div class="card"><h3>One-key jump, across Spaces</h3>
+      <p>Exact tab in Terminal/iTerm2 by tty; project window in Cursor, VS Code or Windsurf via the process tree. No other monitor jumps into editor terminals.</p></div>
+    <div class="card"><h3>Click-to-focus notifications</h3>
+      <p><code>claude-notify</code> turns Claude Code hooks into native macOS notifications — click one and land in that session's tab.</p></div>
+    <div class="card"><h3>Background-agent aware</h3>
+      <p>A session whose subagents are still writing shows as working, not idle. No more "wait, it wasn't done?"</p></div>
+    <div class="card"><h3>System headroom</h3>
+      <p>CPU, RAM pressure, swap, disk, per-container Docker, battery temp and thermal throttling — can your Mac take one more session?</p></div>
+    <div class="card"><h3>Local &amp; auditable</h3>
+      <p>Pure Python stdlib. No telemetry. The only network call is a daily version check you can turn off. CI: bandit + CodeQL + stdlib guard.</p></div>
+  </div>
+
+  <p class="cta">⭐ <a href="https://github.com/rotorrest/claude-monitor">Star it on GitHub</a> ·
+     <a href="https://github.com/rotorrest/claude-monitor/releases/latest">latest release</a> ·
+     <a href="https://github.com/rotorrest/claude-monitor/blob/main/README.es.md">🇪🇸 léelo en español</a></p>
+
+  <footer>MIT · built for people who run too many Claudes at once</footer>
+</div>
+</body>
+</html>

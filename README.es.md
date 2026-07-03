@@ -15,6 +15,8 @@
   <img src="docs/demo.svg" alt="claude-monitor mostrando sesiones de Claude Code agrupadas por atención" width="900">
 </p>
 
+⭐ **Si claude-monitor te ahorra alt-tabs, una estrellita ayuda a que otros lo encuentren.**
+
 Corres 5+ sesiones de Claude Code en paralelo y vives alt-tabeando para ver cuál te necesita. `claudios` lee el estado que Claude Code publica en `~/.claude/sessions/` y te lo muestra ordenado por atención: primero lo bloqueado, después lo parado (con el último mensaje de Claude, para saber *en qué quedó*), al final lo que sigue trabajando. Presionas la tecla de la fila y te planta en esa pestaña de Terminal/iTerm2.
 
 ## Instalación
@@ -127,6 +129,19 @@ Ideas mapeadas de las mejores herramientas del ecosistema — crédito donde cor
 - [ ] Layout compacto automático en terminales angostas (ccusage)
 - [ ] Web UI móvil con QR + aprobación remota de permisos (claude-code-monitor) — la joya de la corona
 
+
+## FAQ / Problemas comunes
+
+**¿Manda mi código o transcripts a algún lado?** No. Todo se lee localmente; la única llamada de red es el chequeo de versión diario a `api.github.com` (se apaga con `CLAUDIOS_NO_UPDATE_CHECK=1`).
+
+**La tecla no salta a la sesión.** El salto usa AppleScript/System Events — dale permiso de **Accesibilidad** a tu terminal (Ajustes → Privacidad y seguridad → Accesibilidad) la primera vez que macOS lo pida. Para Cursor/VS Code la carpeta del proyecto debe estar abierta como raíz de la ventana.
+
+**No aparecen sesiones.** El monitor lee `~/.claude/sessions/`, que las versiones recientes de Claude Code mantienen — actualiza Claude Code si ese directorio está vacío con sesiones corriendo.
+
+**`brew install` dice que el tap no es confiable.** Corre `brew trust rotorrest/tap` y reintenta.
+
+**El clic en la notificación no enfoca la pestaña.** Instala [terminal-notifier](https://github.com/julienXX/terminal-notifier) (`brew install terminal-notifier`); sin él las notificaciones caen a osascript plano (sin acción al clic).
+
 ## Herramientas relacionadas
 
 | Herramienta | Enfoque |
@@ -153,6 +168,11 @@ Los PRs corren el mismo CI (lint, SAST, CodeQL, smoke test en macOS). Para publi
 rm ~/.local/bin/claudios ~/.local/bin/claude-notify ~/.local/bin/claude-monitor
 # o: brew uninstall claude-monitor
 ```
+
+
+## Star history
+
+[![Star History Chart](https://api.star-history.com/svg?repos=rotorrest/claude-monitor&type=Date)](https://star-history.com/#rotorrest/claude-monitor&Date)
 
 ## Licencia
 

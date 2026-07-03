@@ -15,6 +15,8 @@
   <img src="docs/demo.svg" alt="claude-monitor TUI showing Claude Code sessions grouped by attention: blocked, waiting for reply, and working" width="900">
 </p>
 
+⭐ **If claude-monitor saves you alt-tabs, a star helps others find it.**
+
 You run 5+ Claude Code sessions in parallel and live alt-tabbing to check which one needs you. `claudios` reads the state Claude Code publishes in `~/.claude/sessions/` and shows it sorted by attention: blocked sessions first, then stopped ones (with Claude's last message, so you know *where it left off*), then the ones still working. Press a row's key and it drops you in that session's terminal tab.
 
 ## Install
@@ -127,6 +129,19 @@ Ideas mapped from the best tools in the ecosystem — credit where due:
 - [ ] Auto-compact layout on narrow terminals (ccusage)
 - [ ] Mobile web UI with QR + remote permission approval (claude-code-monitor) — the crown jewel
 
+
+## FAQ / Troubleshooting
+
+**Does it send my code or transcripts anywhere?** No. Everything is read locally; the only network call is a daily version check against `api.github.com` (disable with `CLAUDIOS_NO_UPDATE_CHECK=1`).
+
+**Pressing a key doesn't jump to the session.** The jump uses AppleScript/System Events — grant your terminal app **Accessibility** permission (System Settings → Privacy & Security → Accessibility) the first time macOS asks. For Cursor/VS Code the project folder must be open as the window's workspace root.
+
+**No sessions show up.** The monitor reads `~/.claude/sessions/`, which recent Claude Code versions maintain — update Claude Code if that directory is empty while sessions are running.
+
+**`brew install` says the tap is untrusted.** Run `brew trust rotorrest/tap` and retry (newer Homebrew requires trusting third-party taps).
+
+**Notifications don't focus the tab when clicked.** Install [terminal-notifier](https://github.com/julienXX/terminal-notifier) (`brew install terminal-notifier`); without it notifications fall back to plain osascript (no click action).
+
 ## Related tools
 
 | Tool | Focus |
@@ -154,6 +169,11 @@ PRs run the same CI (lint, SAST, CodeQL, macOS smoke test). To release: bump `__
 rm ~/.local/bin/claudios ~/.local/bin/claude-notify ~/.local/bin/claude-monitor
 # or: brew uninstall claude-monitor
 ```
+
+
+## Star history
+
+[![Star History Chart](https://api.star-history.com/svg?repos=rotorrest/claude-monitor&type=Date)](https://star-history.com/#rotorrest/claude-monitor&Date)
 
 ## License
 

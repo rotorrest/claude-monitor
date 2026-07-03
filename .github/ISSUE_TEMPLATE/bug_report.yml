@@ -1,0 +1,41 @@
+name: Bug report
+description: Something broke or renders wrong
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `claudios --version`
+      placeholder: claudios v0.2.0
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "26.x (Apple Silicon)"
+    validations:
+      required: true
+  - type: dropdown
+    id: terminal
+    attributes:
+      label: Where do your Claude Code sessions run?
+      multiple: true
+      options:
+        - Terminal.app
+        - iTerm2
+        - Cursor
+        - VS Code
+        - Windsurf
+        - Ghostty
+        - other / tmux
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, what did you get? Paste output/screenshot if visual.
+    validations:
+      required: true

@@ -1,0 +1,17 @@
+name: Feature request
+description: An idea — bonus points if you link a tool that already does it well
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What should it do, and when would you use it?
+    validations:
+      required: true
+  - type: input
+    id: prior-art
+    attributes:
+      label: Prior art (optional)
+      description: A tool that already does this well — we steal features proudly, with credit.
+      placeholder: https://github.com/...
