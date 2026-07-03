@@ -32,7 +32,10 @@ es la única llamada de red que hace la herramienta.
 En modo watch: muévete entre sesiones con ↑/↓ (o j/k) y Enter para ir a
 la seleccionada, o presiona directo la tecla de una fila (1-9, a…) —
 pestaña exacta en Terminal/iTerm2 (por tty), ventana del proyecto en
-Cursor/VS Code/Ghostty/Windsurf — cruzando Spaces/pantallas;
+Cursor/VS Code/Ghostty/Windsurf — cruzando Spaces/pantallas.
+Con → (o l) abres la conversación de la sesión seleccionada en vivo sin
+salir de la terminal: ↑/↓ hace scroll, Enter salta a su terminal real,
+← / Esc vuelve a la lista.
 d para detalle de Docker; u para detalle de uso; q para salir.
 """
 
@@ -47,10 +50,11 @@ import signal
 import subprocess
 import sys
 import termios
+import textwrap
 import threading
 import time
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 GITHUB_REPO = "rotorrest/claude-monitor"
 
 SESSIONS_DIR = os.path.expanduser("~/.claude/sessions")
@@ -71,8 +75,8 @@ GROUPS = [
     ("busy", GREEN, "TRABAJANDO"),
 ]
 
-# sin q (salir), d (docker), u (uso), j/k (navegación)
-KEYS = "123456789abcefghilmnoprstvwxyz"
+# sin q (salir), d (docker), u (uso), j/k (navegar) ni h/l (preview)
+KEYS = "123456789abcefgimnoprstvwxyz"
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 CTRL_RE = re.compile(r"[\x00-\x08\x0a-\x1f\x7f]")
@@ -858,6 +862,122 @@ def last_assistant_text(cwd, session_id, max_len):
     return ""
 
 
+# ── preview de conversación (dentro de la misma terminal) ───────────────
+
+
+def compact_input(tool_input):
+    """Resumen de una línea del input de un tool_use."""
+    if not isinstance(tool_input, dict):
+        return ""
+    for key in ("command", "file_path", "pattern", "url", "prompt",
+                "description", "query"):
+        v = tool_input.get(key)
+        if isinstance(v, str) and v.strip():
+            return clean(re.sub(r"\s+", " ", v)).strip()
+    try:
+        return clean(json.dumps(tool_input, ensure_ascii=False))
+    except (TypeError, ValueError):
+        return ""
+
+
+def load_transcript(cwd, session_id, max_bytes=262144):
+    """Eventos legibles (rol, texto) del tail del JSONL de la sesión."""
+    if not session_id:
+        return []
+    path = session_jsonl(cwd, session_id)
+    try:
+        size = os.path.getsize(path)
+        with open(path, "rb") as fh:
+            fh.seek(max(0, size - max_bytes))
+            raw = fh.read().decode("utf-8", "replace")
+    except OSError:
+        return []
+    lines = raw.splitlines()
+    if size > max_bytes and lines:
+        lines = lines[1:]  # la primera puede venir cortada
+    events = []
+    for line in lines:
+        try:
+            d = json.loads(line)
+        except ValueError:
+            continue
+        if d.get("isSidechain"):
+            continue
+        msg = d.get("message") or {}
+        content = msg.get("content")
+        if d.get("type") == "user":
+            if isinstance(content, str):
+                events.append(("user", content))
+            elif isinstance(content, list):
+                for b in content:
+                    if not isinstance(b, dict):
+                        continue
+                    if b.get("type") == "text":
+                        events.append(("user", b.get("text", "")))
+                    elif b.get("type") == "tool_result":
+                        rc = b.get("content")
+                        n = (len(rc) if isinstance(rc, str)
+                             else sum(len(x.get("text", "")) for x in rc
+                                      if isinstance(x, dict)) if isinstance(rc, list)
+                             else 0)
+                        events.append(("result", f"resultado ({fmt_tok(n)} chars)"))
+        elif d.get("type") == "assistant":
+            for b in content or []:
+                if not isinstance(b, dict):
+                    continue
+                if b.get("type") == "text" and b.get("text", "").strip():
+                    events.append(("claude", b.get("text", "")))
+                elif b.get("type") == "tool_use":
+                    detail = compact_input(b.get("input"))
+                    events.append(("tool", f"{b.get('name', '?')}  {detail}"))
+    return events
+
+
+PREVIEW_STYLE = {
+    "user":   (YELLOW + BOLD, "❯ "),
+    "claude": ("", "  "),
+    "tool":   (DIM, "  ⚙ "),
+    "result": (DIM, "    ↳ "),
+}
+
+
+def render_preview(row, width, height, offset):
+    """Frame full-screen con la conversación de una sesión, scrolleable."""
+    status_col = {"waiting": RED, "idle": YELLOW, "busy": GREEN}.get(
+        row["status"], DIM)
+    head_l = (f" {BOLD}{row['name'][:40]}{RESET}  {status_col}●{RESET}"
+              f" {DIM}{shorten_path(row['cwd'], 40)}{RESET}")
+    head_r = f"{DIM}{row['pid']} · {time.strftime('%H:%M:%S')}{RESET} "
+    head = [pad_between(head_l, head_r, width), DIM + "─" * width + RESET]
+
+    body = []
+    for role, text in load_transcript(row["cwd"], row["sessionId"]):
+        color, prefix = PREVIEW_STYLE[role]
+        text = clean(re.sub(r"\s*\n\s*", " " if role != "claude" else "\n", text))
+        if role in ("tool", "result"):
+            text = text[:width - len(prefix) - 1]
+        pad = " " * len(prefix)
+        first = True
+        for para in text.split("\n"):
+            wrapped = textwrap.wrap(para, width=width - len(prefix) - 1) or [""]
+            for w in wrapped:
+                lead = prefix if first else pad
+                body.append(f"{color}{lead}{w}{RESET}" if color
+                            else f"{lead}{w}")
+                first = False
+        if role in ("user", "claude"):
+            body.append("")
+
+    view_h = max(4, height - len(head) - 3)
+    offset = max(0, min(offset, max(0, len(body) - view_h)))
+    end = len(body) - offset
+    window = body[max(0, end - view_h):end]
+    if offset:
+        head[1] = pad_between(DIM + "─" * (width - 14) + RESET,
+                              f"{YELLOW}↓ {offset} más{RESET} ", width)
+    return "\n".join(head + window), offset
+
+
 def collect():
     now = time.time()
     rows = []
@@ -1017,6 +1137,8 @@ def watch_loop(interval):
     docker_detail = False
     usage_detail = False
     selected_pid = None
+    mode = "list"       # "list" | "preview"
+    preview_offset = 0
     threading.Thread(target=slow_loop, daemon=True).start()
 
     def read_key():
@@ -1037,7 +1159,8 @@ def watch_loop(interval):
                 if nxt != "[":
                     return ch
             else:
-                return {"A": "up", "B": "down"}.get(nxt, ch)
+                return {"A": "up", "B": "down",
+                        "C": "right", "D": "left"}.get(nxt, ch)
         return ch
     # self-pipe: SIGWINCH (resize) despierta el select → redibujo inmediato
     rpipe, wpipe = os.pipe()
@@ -1057,15 +1180,26 @@ def watch_loop(interval):
             visible = {r["pid"] for r in rows}
             if selected_pid is not None and selected_pid not in visible:
                 selected_pid = None  # la sesión seleccionada ya no existe
-            out, keymap = render(rows, width, height=height,
-                                 show_keys=is_tty, docker_detail=docker_detail,
-                                 usage_detail=usage_detail,
-                                 selected_pid=selected_pid)
-            order = list(keymap.values())  # filas visibles, en orden de pantalla
+                mode = "list"
+            sel_row = next((r for r in rows if r["pid"] == selected_pid), None)
+            if mode == "preview" and sel_row:
+                out, preview_offset = render_preview(
+                    sel_row, width, height, preview_offset)
+                keymap, order = {}, []
+                hint = ("↑↓ scroll · Enter ir a su terminal · ←/Esc volver"
+                        " · q salir")
+            else:
+                mode = "list"
+                out, keymap = render(rows, width, height=height,
+                                     show_keys=is_tty,
+                                     docker_detail=docker_detail,
+                                     usage_detail=usage_detail,
+                                     selected_pid=selected_pid)
+                order = list(keymap.values())  # filas visibles en orden
+                hint = ("↑↓ mover · → ver · Enter ir · d docker · u uso"
+                        " · q salir" if is_tty else "Ctrl+C para salir")
             sys.stdout.write("\x1b[2J\x1b[H")
             print(out)
-            hint = ("↑↓ mover · Enter ir · tecla directa · d docker"
-                    " · u uso · q salir" if is_tty else "Ctrl+C para salir")
             # sin newline final: si la última línea hace scroll se pierde el título
             print(f"\n{DIM} refresca cada {interval:g}s · {hint}{RESET}", end="")
             if SLOW["update"]:
@@ -1079,6 +1213,18 @@ def watch_loop(interval):
                 continue              # redibujar ya, sin esperar el tick
             if is_tty and fd in r:
                 ch = read_key()
+                if mode == "preview":
+                    if ch in ("q", "Q", "left", "h", "H", "\x1b"):
+                        mode = "list"
+                        preview_offset = 0
+                    elif ch in ("up", "k", "K"):
+                        preview_offset += 3
+                    elif ch in ("down", "j", "J"):
+                        preview_offset = max(0, preview_offset - 3)
+                    elif ch in ("\r", "\n") and sel_row:
+                        tty2 = ttys_for([sel_row["pid"]]).get(sel_row["pid"])
+                        focus_row(tty2, sel_row["cwd"], sel_row["pid"])
+                    continue
                 if ch in ("q", "Q"):
                     break
                 if ch in ("d", "D"):
@@ -1086,6 +1232,12 @@ def watch_loop(interval):
                     continue
                 if ch in ("u", "U"):
                     usage_detail = not usage_detail
+                    continue
+                if ch in ("right", "l", "L", " ") and order:
+                    if selected_pid is None:
+                        selected_pid = order[0]["pid"]
+                    mode = "preview"
+                    preview_offset = 0
                     continue
                 if ch in ("up", "down", "j", "J", "k", "K") and order:
                     pids = [x["pid"] for x in order]
