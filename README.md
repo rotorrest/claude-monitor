@@ -63,7 +63,7 @@ The jump knows where each session lives: exact tab in **Terminal/iTerm2** (by tt
 ### What it shows
 
 - **Sessions grouped by attention**: blocked waiting for permission → stopped waiting for your reply (with Claude's last message) → working.
-- **Background agents**: if a session ended its turn but its subagents are still writing to the transcript, it's flagged `⚙ agentes en background activos` instead of showing as stopped.
+- **Background agents & jobs**: sessions with in-process agents show a live count (`⚙ 3 agentes en background`), sessions with detached daemon jobs show the job's name — and both count as *working* instead of idle, detected via task outputs, transcript activity and the process tree.
 - **System metrics**: CPU, load, RAM + memory pressure, swap, disk, per-container Docker, battery + temperature and thermal throttling (so you know whether your Mac can take one more session).
 - **Token usage & cost (last 5h)**: totals in/out/cache, estimated API-equivalent cost, burn rate with a 10-minute sparkline, and a per-session top (`u` key) — read from your local JSONLs, zero network, prices for the current model lineup built in.
 

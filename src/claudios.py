@@ -54,7 +54,7 @@ import textwrap
 import threading
 import time
 
-__version__ = "0.5.3"
+__version__ = "0.6.0"
 GITHUB_REPO = "rotorrest/claude-monitor"
 
 SESSIONS_DIR = os.path.expanduser("~/.claude/sessions")
@@ -978,6 +978,34 @@ def render_preview(row, width, height, offset):
     return "\n".join(head + window), offset
 
 
+# Los agentes en background (Task tool) escriben su transcript en
+# /private/tmp/claude-<uid>/<cwd-munged>/<sessionId>/tasks/<id>.output;
+# un archivo con mtime fresco = un agente trabajando ahora.
+TASKS_BASE = f"/private/tmp/claude-{os.getuid()}"
+
+
+def active_agents(cwd, sid, window=180):
+    if not sid:
+        return 0
+    tdir = os.path.join(
+        TASKS_BASE, re.sub(r"[^A-Za-z0-9]", "-", cwd), sid, "tasks")
+    now = time.time()
+    n = 0
+    try:
+        names = os.listdir(tdir)
+    except OSError:
+        return 0
+    for name in names:
+        if not name.endswith(".output"):
+            continue
+        try:
+            if now - os.path.getmtime(os.path.join(tdir, name)) < window:
+                n += 1
+        except OSError:
+            pass
+    return n
+
+
 def proc_children():
     """Mapa ppid → [pids] de todo el sistema (un solo ps)."""
     kids = {}
@@ -1033,6 +1061,9 @@ def collect():
                     bg, status = True, "busy"
             except OSError:
                 pass
+        agents = active_agents(cwd, sid)
+        if agents and status == "idle":
+            bg, status = True, "busy"
         rows.append({
             "pid": pid,
             "name": clean(d.get("name", "?")),
@@ -1041,6 +1072,7 @@ def collect():
             "status": status,
             "bg": bg,
             "bg_note": "",
+            "agents": agents,
             "age": now - since,
             "waitingFor": clean(d.get("waitingFor", "")),
         })
@@ -1154,10 +1186,17 @@ def render(rows, width, height=0, show_keys=False, docker_detail=False,
                 )
                 if r["status"] == "waiting" and r["waitingFor"]:
                     lines.append(f"{' ' * indent}{RED}⏸ esperando: {r['waitingFor']}{RESET}")
-                if r.get("bg"):
-                    note = (f"background: {r['bg_note'][:width - indent - 16]}"
-                            if r.get("bg_note") else
-                            "agentes en background activos")
+                if r.get("bg") or r.get("agents"):
+                    notes = []
+                    if r.get("agents"):
+                        n = r["agents"]
+                        notes.append(f"{n} agente{'s' if n > 1 else ''}"
+                                     " en background")
+                    if r.get("bg_note"):
+                        notes.append(f"job: {r['bg_note'][:40]}")
+                    if not notes:
+                        notes.append("actividad en background")
+                    note = " · ".join(notes)[:width - indent - 3]
                     lines.append(f"{' ' * indent}{GREEN}⚙{RESET} "
                                  f"{DIM}{note}{RESET}")
                 if with_snippets and r["status"] in ("waiting", "idle"):
